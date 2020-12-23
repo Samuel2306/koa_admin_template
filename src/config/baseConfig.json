@@ -1,0 +1,6 @@
+{
+  "jwt": {
+    "secret": "samuel2306",
+    "expireTime": 60
+  }
+}

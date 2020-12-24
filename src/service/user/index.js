@@ -1,4 +1,6 @@
-const User = require('../../database/mysql/model/user');
+const {
+  User,
+} = require('../../database/mysql/model');
 const {
   comparePassword,
 } = require('../../helpers/encrypt');

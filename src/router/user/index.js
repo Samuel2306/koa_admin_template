@@ -3,24 +3,22 @@ const {
   UserController
 } = require('../../controller');
 const {
-  createSvgCaptcha
+  createRoutesByMap
+} = require('../../util');
+const {
+  createSvgCaptcha,
 } = require('../../helpers/svgCaptcha');
 
 let router = KoaRouter();
 // 设置模块名为接口前缀
 router.prefix('/api/v1/user');
 
-// 用户登录接口
-router.post('/login', async function(ctx, next){
-  await UserController.userLogin(ctx);
-  await next();
-});
 
-// 用户注册接口
-router.post('/register', async function(ctx, next){
-  await UserController.registerUser(ctx);
-  await next();
-});
+let APIToFuncMap = {
+  'login': 'userLogin',
+  'register': 'registerUser',
+};
+createRoutesByMap(UserController, router, APIToFuncMap);
 
 // 生成图片验证码
 router.get('/svgCaptcha', async function(ctx, next){

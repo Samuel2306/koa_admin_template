@@ -27,6 +27,15 @@ function getAllowOriginsConfig(){
   return envConfig[getEnvName()].allowOrigins
 }
 
+function createRoutesByMap(controller, router, map){
+  for(let prop in map){
+    router.post('/' + prop, async function(ctx, next){
+      await controller[map[prop]](ctx);
+      await next();
+    });
+  }
+}
+
 module.exports = {
   getRequestBody: getRequestBody,
   getRequestQuery: getRequestQuery,
@@ -35,4 +44,5 @@ module.exports = {
   getRedisConfig: getRedisConfig,
   getMysqlConfig: getMysqlConfig,
   getAllowOriginsConfig: getAllowOriginsConfig,
+  createRoutesByMap: createRoutesByMap,
 };

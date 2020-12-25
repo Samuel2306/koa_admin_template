@@ -7,7 +7,7 @@ const redisMiddleware = require('./redisMiddleware');
 module.exports = [
   corMiddleware,
   koaBodyMiddleware,
-  jwtMiddleware,
+  // jwtMiddleware,
   // sessionMiddleware,
   // redisMiddleware,
 ];

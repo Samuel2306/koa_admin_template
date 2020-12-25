@@ -19,7 +19,14 @@ DictionaryCategory.init({
     type: DataTypes.STRING,
     allowNull: false,
     field: 'categoryName',
-  }
+    unique: true,
+  },
+  categoryCode: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    field: 'categoryCode',
+    unique: true,
+  },
 }, {
   sequelize,
   modelName: 'DictionaryCategory',

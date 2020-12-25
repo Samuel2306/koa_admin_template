@@ -2,36 +2,58 @@ const {
   DictionaryCategory,
   Dictionary,
 } = require('../../database/mysql/model');
-const baseConfig = require('../../config/baseConfig');
 
 class DictionaryService {
-  static async create(username){
-    let user = await User.findOne({
+  static async findCategoryByName(categoryName){
+    let dictCategory = DictionaryCategory.findOne({
       where: {
-        userName: username
+        categoryName: categoryName
       }
+    })
+    return dictCategory
+  }
+  static async findCategoryByCode(categoryCode){
+    let dictCategory = DictionaryCategory.findOne({
+      where: {
+        categoryCode: categoryCode
+      }
+    })
+    return dictCategory;
+  }
+  static async findCategory(categoryName, categoryCode){
+    let dictCategory = null;
+    await Promise.all([DictionaryService.findCategoryByName(categoryName), DictionaryService.findCategoryByCode(categoryCode)])
+      .then((res) => {
+        dictCategory = res && res.length ? res.filter((item) => {return !!item})[0] : null;
+      })
+    return dictCategory
+  }
+  static async createDictCategory(categoryName, categoryCode){
+    await DictionaryCategory.create({
+      categoryName: categoryName,
+      categoryCode: categoryCode,
     });
-    return user
   }
-  static async delete(fromUser, fromDatabase){
-    let res = await comparePassword(fromUser, fromDatabase);
-    if(!res){
-      throw new Error('密码错误');
-    }
-  }
+  static async deleteDictCategory(ctx){
 
-  static async update(fromUser, fromDatabase){
-    let res = await comparePassword(fromUser, fromDatabase);
-    if(!res){
-      throw new Error('密码错误');
-    }
   }
+  static async updateDictCategory(ctx){
 
-  static async query(fromUser, fromDatabase){
-    let res = await comparePassword(fromUser, fromDatabase);
-    if(!res){
-      throw new Error('密码错误');
-    }
+  }
+  static async queryDictCategory(ctx){
+
+  }
+  static async createDictionary(ctx){
+
+  }
+  static async deleteDictionary(ctx){
+
+  }
+  static async updateDictionary(ctx){
+
+  }
+  static async queryDictionary(ctx){
+
   }
 }
 

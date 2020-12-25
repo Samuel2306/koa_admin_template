@@ -41,7 +41,7 @@ class UserController {
       if (!body.userName) {
         // 用户参数缺失
         ctx.body = new ErrorResult({
-          code: 'air_0011',
+          code: 'air_0002',
           data: null
         });
       } else {
@@ -81,7 +81,7 @@ class UserController {
     }else{
       // 用户参数缺失
       ctx.body = new ErrorResult({
-        code: 'air_0011',
+        code: 'air_0002',
         data: null,
       });
     }

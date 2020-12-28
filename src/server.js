@@ -13,8 +13,8 @@ module.exports = function(){
 
   /* 将所有接口引入 */
   for (let prop in routers){
-    let router = routers[prop]
-    app.use(router.routes())
+    let router = routers[prop];
+    app.use(router.routes());
     app.use(router.allowedMethods())
   }
   app.listen(5000);

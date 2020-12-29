@@ -21,6 +21,14 @@ class DictionaryService {
     })
     return dictCategory;
   }
+  static async findCategoryById(categoryId){
+    let dictCategory = DictionaryCategory.findOne({
+      where: {
+        categoryId: categoryId
+      }
+    })
+    return dictCategory;
+  }
   static async findCategory(categoryName, categoryCode){
     let dictCategory = null;
     await Promise.all([DictionaryService.findCategoryByName(categoryName), DictionaryService.findCategoryByCode(categoryCode)])
@@ -72,7 +80,7 @@ class DictionaryService {
 
 
 
-
+  /* 字典选项相关 */
   static async findDictByName(dictLabel){
     let dictionary = Dictionary.findOne({
       where: {
@@ -97,8 +105,13 @@ class DictionaryService {
       })
     return dictionary
   }
-  static async createDictionary(dictLabel, dictCode){
-
+  static async createDictionary({dictLabel, dictCode, categoryId}){
+    await Dictionary.create({
+      dictLabel,
+      dictCode,
+      categoryId,
+      isActive: false
+    })
   }
 
   static async deleteDictionary(ctx){

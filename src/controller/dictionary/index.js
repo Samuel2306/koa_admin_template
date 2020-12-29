@@ -20,7 +20,6 @@ class DictionaryController {
       if(category){
         ctx.body = new ErrorResult({
           code: 'air_0020',
-
         });
       }else{
         try {
@@ -33,7 +32,6 @@ class DictionaryController {
           console.error(e);
           ctx.body = new ErrorResult({
             code: 'air_0001',
-
           });
         }
       }
@@ -117,29 +115,45 @@ class DictionaryController {
   }
 
 
+
+
+
+
+
+
+  /* 字典选项接口 */
   static async createDictionary(ctx){
     const {
+      categoryId,
       dictLabel,
       dictCode,
     } = getRequestBody(ctx);
-    if(dictLabel && dictCode){
-      let dictionary = await DictionaryService.findDictionary(dictLabel, dictCode);
-      if(dictionary){
-        ctx.body = new ErrorResult({
-          code: 'air_0021',
-        });
-      }else{
-        try {
-          await DictionaryService.createDictionary(dictLabel, dictCode);
-          ctx.body = new SuccessResult({
-            msg: '创建字典成功'
-          });
-        }catch(e){
-          console.error(e);
+    if(dictLabel && dictCode && categoryId){
+      let category = await DictionaryService.findCategoryById(categoryId);
+      if(category){
+        let dictionary = await DictionaryService.findDictionary(dictLabel, dictCode);
+        if(dictionary){
           ctx.body = new ErrorResult({
-            code: 'air_0001',
+            code: 'air_0021',
           });
+        }else{
+          try {
+            await DictionaryService.createDictionary({dictLabel, dictCode, categoryId}, category);
+            ctx.body = new SuccessResult({
+              msg: '创建字典成功'
+            });
+          }catch(e){
+            console.error(e);
+            ctx.body = new ErrorResult({
+              code: 'air_0001',
+              msg: '创建字典失败',
+            });
+          }
         }
+      }else{
+        ctx.body = new ErrorResult({
+          code: 'air_0022',
+        });
       }
     }else{
       ctx.body = new ErrorResult({

@@ -20,27 +20,27 @@ class DictionaryController {
       if(category){
         ctx.body = new ErrorResult({
           code: 'air_0020',
-          data: null,
+
         });
       }else{
         try {
           await DictionaryService.createDictCategory({categoryName, categoryCode});
           ctx.body = new SuccessResult({
-            data: null,
+
             msg: '创建成功'
           });
         }catch(e){
           console.error(e);
           ctx.body = new ErrorResult({
             code: 'air_0001',
-            data: null,
+
           });
         }
       }
     }else{
       ctx.body = new ErrorResult({
         code: 'air_0002',
-        data: null,
+
       });
     }
   }
@@ -53,7 +53,6 @@ class DictionaryController {
       try {
         await DictionaryService.deleteDictCategory(dictCategory);
         ctx.body = new SuccessResult({
-          data: null,
           msg: '删除成功'
         });
       }catch(e){
@@ -84,7 +83,6 @@ class DictionaryController {
           isActive,
         }, dictCategory);
         ctx.body = new SuccessResult({
-          data: null,
           msg: '更新成功'
         });
       }catch(e){
@@ -100,11 +98,22 @@ class DictionaryController {
     }
   }
   static async queryDictCategory(ctx){
-    let category = await DictionaryService.queryDictCategory(1);
-    ctx.body = new SuccessResult({
-      msg: 'success',
-      data: category
-    })
+    let {
+      categoryCode,
+    } = getRequestBody(ctx);
+    categoryCode = categoryCode.split(',');
+    try {
+      let category = await DictionaryService.queryDictCategory(categoryCode);
+      ctx.body = new SuccessResult({
+        msg: 'success',
+        data: category
+      })
+    }catch(e){
+      console.log(e);
+      ctx.body = new ErrorResult({
+        code: 'air_0001',
+      })
+    }
   }
 
 
@@ -118,27 +127,23 @@ class DictionaryController {
       if(dictionary){
         ctx.body = new ErrorResult({
           code: 'air_0021',
-          data: null,
         });
       }else{
         try {
           await DictionaryService.createDictionary(dictLabel, dictCode);
           ctx.body = new SuccessResult({
-            data: null,
             msg: '创建字典成功'
           });
         }catch(e){
           console.error(e);
           ctx.body = new ErrorResult({
             code: 'air_0001',
-            data: null,
           });
         }
       }
     }else{
       ctx.body = new ErrorResult({
         code: 'air_0002',
-        data: null,
       });
     }
 

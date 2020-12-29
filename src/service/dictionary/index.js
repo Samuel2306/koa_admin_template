@@ -1,3 +1,4 @@
+const { Op } = require("sequelize");
 const {
   DictionaryCategory,
   Dictionary,
@@ -44,11 +45,15 @@ class DictionaryService {
     dictCategory.isActive = isActive || dictCategory.isActive;
     await dictCategory.save();
   }
-  static async queryDictCategory(categoryId, isActive){
+  static async queryDictCategory(categoryCode, isActive){
     const conditions = isActive == null ? {
-      categoryId: categoryId,
+      categoryCode: {
+        [Op.or]: categoryCode,
+      },
     } : {
-      categoryId: categoryId,
+      categoryCode: {
+        [Op.or]: categoryCode,
+      },
       isActive: isActive,
     };
     let category = await DictionaryCategory.findAll({

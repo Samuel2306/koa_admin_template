@@ -81,25 +81,27 @@ class DictionaryService {
 
 
   /* 字典选项相关 */
-  static async findDictByName(dictLabel){
+  static async findDictByName({dictLabel, categoryId}){
     let dictionary = Dictionary.findOne({
       where: {
-        dictLabel: dictLabel
+        dictLabel: dictLabel,
+        categoryId: categoryId,
       }
     })
     return dictionary
   }
-  static async findDictByCode(dictCode){
+  static async findDictByCode({dictCode, categoryId}){
     let dictionary = Dictionary.findOne({
       where: {
-        dictCode: dictCode
+        dictCode: dictCode,
+        categoryId: categoryId,
       }
     })
     return dictionary;
   }
-  static async findDictionary(dictLabel, dictCode){
+  static async findDictionary({dictLabel, dictCode, categoryId}){
     let dictionary = null;
-    await Promise.all([DictionaryService.findDictByName(dictLabel), DictionaryService.findDictByCode(dictCode)])
+    await Promise.all([DictionaryService.findDictByName({dictLabel, categoryId}), DictionaryService.findDictByCode({dictCode, categoryId})])
       .then((res) => {
         dictionary = res && res.length ? res.filter((item) => {return !!item})[0] : null;
       })
@@ -114,8 +116,8 @@ class DictionaryService {
     })
   }
 
-  static async deleteDictionary(ctx){
-
+  static async deleteDictionary(dict){
+    dict.destroy();
   }
   static async updateDictionary(ctx){
 

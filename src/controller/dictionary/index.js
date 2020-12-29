@@ -163,7 +163,25 @@ class DictionaryController {
 
   }
   static async deleteDictionary(ctx){
-
+    const {
+      categoryId,
+      dictCode,
+    } = getRequestBody(ctx);
+    let dict = await DictionaryService.findDictByCode({dictCode, categoryId});
+    if(dict){
+      try {
+        await DictionaryService.deleteDictionary(dict);
+      }catch(e){
+        console.log(e);
+        ctx.body = new ErrorResult({
+          code: 'air_0003',
+        });
+      }
+    }else{
+      ctx.body = new ErrorResult({
+        code: 'air_0023',
+      });
+    }
   }
   static async updateDictionary(ctx){
 

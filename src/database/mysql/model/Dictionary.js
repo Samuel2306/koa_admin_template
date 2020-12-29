@@ -29,6 +29,11 @@ Dictionary.init({
     allowNull: false,
     field: 'dictCode',
   },
+  isActive: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    field: 'isActive',
+  },
 }, {
   sequelize,
   modelName: 'Dictionary',

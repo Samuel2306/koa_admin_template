@@ -27,6 +27,11 @@ DictionaryCategory.init({
     field: 'categoryCode',
     unique: true,
   },
+  isActive: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    field: 'isActive',
+  },
 }, {
   sequelize,
   modelName: 'DictionaryCategory',

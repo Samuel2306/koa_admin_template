@@ -4,7 +4,7 @@ const Dictionary = require('./Dictionary');
 
 // DictionaryCategory 与 Dictionary 的一对多关系
 DictionaryCategory.hasMany(Dictionary, {
-  as: 'dictionaries',
+  as: 'children',
   foreignKey: 'categoryId'
 });
 Dictionary.belongsTo(DictionaryCategory);

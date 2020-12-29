@@ -15,6 +15,7 @@ const resultCodesAndMessage = {
   /* 字典相关 */
   'air_0020': '已存在相同名称或者编码的字典类型',
   'air_0021': '已存在相同名称或者编码的字典选项',
+  'air_0022': 'categoryCode对应的字典类型不存在',
   /* 字典相关 */
 }
 class Result {
@@ -26,7 +27,7 @@ class Result {
 }
 
 class SuccessResult extends Result {
-  constructor({data, msg}){
+  constructor({data=null, msg}){
     super({
       code: 'air_0000',
       data,
@@ -36,7 +37,7 @@ class SuccessResult extends Result {
 }
 
 class ErrorResult extends Result {
-  constructor({code='air_0001', data, msg}){
+  constructor({code='air_0001', data=null, msg}){
     super({
       code,
       data,

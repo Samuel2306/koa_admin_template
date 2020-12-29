@@ -29,31 +29,43 @@ class DictionaryService {
     return dictCategory
   }
 
-  static async createDictCategory(categoryName, categoryCode){
+  static async createDictCategory({categoryName, categoryCode}){
     await DictionaryCategory.create({
       categoryName: categoryName,
       categoryCode: categoryCode,
+      isActive: false
     });
   }
-  static async deleteDictCategory(ctx){
-
+  static async deleteDictCategory(dictCategory){
+    dictCategory.destroy();
   }
-  static async updateDictCategory(ctx){
-
+  static async updateDictCategory({categoryName, categoryCode}){
+    await DictionaryCategory.save({
+      categoryCode: categoryCode
+    });
   }
-  static async queryDictCategory(categoryId){
-    let category = await DictionaryCategory.findOne({
-      where: {
-        categoryId: categoryId
-      },
+  static async queryDictCategory(categoryId, isActive){
+    const conditions = isActive == null ? {
+      categoryId: categoryId,
+    } : {
+      categoryId: categoryId,
+      isActive: isActive,
+    };
+    let category = await DictionaryCategory.findAll({
+      where: conditions,
       include: {
-        attributes: [ 'categoryId', 'dictId', 'dictLabel', 'dictCode' ],
+        attributes: [ 'categoryId', 'dictId', 'dictLabel', 'dictCode', 'isActive' ],
         model: Dictionary,
-        as: 'dictionaries',  // 定义属性别名
+        as: 'children',  // 定义属性别名
       },
     });
     return category;
   }
+
+
+
+
+
 
 
   static async findDictByName(dictLabel){

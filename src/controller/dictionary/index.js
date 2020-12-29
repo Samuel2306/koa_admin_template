@@ -24,10 +24,10 @@ class DictionaryController {
         });
       }else{
         try {
-          await DictionaryService.createDictCategory(categoryName, categoryCode);
+          await DictionaryService.createDictCategory({categoryName, categoryCode});
           ctx.body = new SuccessResult({
             data: null,
-            msg: '创建字典类型成功'
+            msg: '创建成功'
           });
         }catch(e){
           console.error(e);
@@ -45,7 +45,29 @@ class DictionaryController {
     }
   }
   static async deleteDictCategory(ctx){
-
+    const {
+      categoryCode,
+    } = getRequestBody(ctx);
+    let dictCategory = await DictionaryService.findCategoryByCode(categoryCode);
+    if(dictCategory){
+      try {
+        await DictionaryService.deleteDictCategory(dictCategory);
+        ctx.body = new SuccessResult({
+          data: null,
+          msg: '删除成功'
+        });
+      }catch(e){
+        console.error(e);
+        ctx.body = new ErrorResult({
+          code: 'air_0001',
+          msg: '删除失败',
+        });
+      }
+    }else{
+      ctx.body = new ErrorResult({
+        code: 'air_0022',
+      });
+    }
   }
   static async updateDictCategory(ctx){
 

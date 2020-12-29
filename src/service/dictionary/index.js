@@ -39,10 +39,10 @@ class DictionaryService {
   static async deleteDictCategory(dictCategory){
     dictCategory.destroy();
   }
-  static async updateDictCategory({categoryName, categoryCode}){
-    await DictionaryCategory.save({
-      categoryCode: categoryCode
-    });
+  static async updateDictCategory({categoryName, isActive}, dictCategory){
+    dictCategory.categoryName = categoryName || dictCategory.categoryName;
+    dictCategory.isActive = isActive || dictCategory.isActive;
+    await dictCategory.save();
   }
   static async queryDictCategory(categoryId, isActive){
     const conditions = isActive == null ? {

@@ -59,7 +59,7 @@ class DictionaryController {
       }catch(e){
         console.error(e);
         ctx.body = new ErrorResult({
-          code: 'air_0001',
+          code: 'air_0003',
           msg: '删除失败',
         });
       }
@@ -70,12 +70,37 @@ class DictionaryController {
     }
   }
   static async updateDictCategory(ctx){
+    const {
+      categoryName,
+      categoryCode,
+      isActive,
+    } = getRequestBody(ctx);
 
+    let dictCategory = await DictionaryService.findCategoryByCode(categoryCode);
+    if(dictCategory){
+      try {
+        await DictionaryService.updateDictCategory({
+          categoryName,
+          isActive,
+        }, dictCategory);
+        ctx.body = new SuccessResult({
+          data: null,
+          msg: '更新成功'
+        });
+      }catch(e){
+        console.error(e);
+        ctx.body = new ErrorResult({
+          code: 'air_0004',
+        });
+      }
+    }else{
+      ctx.body = new ErrorResult({
+        code: 'air_0022',
+      });
+    }
   }
   static async queryDictCategory(ctx){
     let category = await DictionaryService.queryDictCategory(1);
-    // console.log(category)
-    // let items = category.getDictionary();
     ctx.body = new SuccessResult({
       msg: 'success',
       data: category

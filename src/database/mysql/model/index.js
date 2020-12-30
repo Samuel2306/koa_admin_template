@@ -10,7 +10,9 @@ Dictionary.belongsTo(DictionaryCategory);
 
 
 /**
- * 注意点：模型同步一定要放在建立关联关系之后，不然会有问题
+ * 建立关联注意点：
+ * 1、模型同步一定要放在建立关联关系之后，不然会有问题
+ * 2、模型定义统一使用define方式
  */
 // 模型同步
 Dictionary.sync({

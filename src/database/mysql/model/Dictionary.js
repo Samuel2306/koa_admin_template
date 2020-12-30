@@ -15,10 +15,6 @@ Dictionary.init({
     allowNull: false,
     autoIncrement: true,
   },
-  categoryId: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-  },
   dictLabel: {
     type: DataTypes.STRING,
     allowNull: false,
@@ -36,7 +32,7 @@ Dictionary.init({
   },
 }, {
   sequelize,
-  modelName: 'Dictionary',
+  modelName: 'dict',
 });
 
 // 模型同步

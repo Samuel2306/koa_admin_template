@@ -35,7 +35,7 @@ User.init({
   }
 },{
   sequelize, // 数据库连接实例
-  modelName: 'User' // 模型名称
+  modelName: 'user' // 模型名称
 })
 
 // 模型同步

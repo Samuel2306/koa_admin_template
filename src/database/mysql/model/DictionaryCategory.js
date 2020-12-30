@@ -34,7 +34,7 @@ DictionaryCategory.init({
   },
 }, {
   sequelize,
-  modelName: 'DictionaryCategory',
+  modelName: 'dictCategory',
 });
 
 // 模型同步

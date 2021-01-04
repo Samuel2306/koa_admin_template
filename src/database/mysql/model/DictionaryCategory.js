@@ -27,6 +27,7 @@ const DictionaryCategory = sequelize.define('dictCategory', {
     type: DataTypes.BOOLEAN,
     allowNull: false,
     field: 'isActive',
+    defaultValue: 0,
   },
 });
 

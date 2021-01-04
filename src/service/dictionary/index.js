@@ -24,7 +24,7 @@ class DictionaryService {
   static async findCategoryById(categoryId){
     let dictCategory = DictionaryCategory.findOne({
       where: {
-        categoryId: categoryId
+        id: categoryId
       }
     })
     return dictCategory;
@@ -38,15 +38,26 @@ class DictionaryService {
     return dictCategory
   }
 
+  /**
+   * 创建字典类型
+   * @param categoryName：类型名称
+   * @param categoryCode：类型code
+   * @returns {Promise<void>}
+   */
   static async createDictCategory({categoryName, categoryCode}){
     await DictionaryCategory.create({
       categoryName: categoryName,
       categoryCode: categoryCode,
-      isActive: false
     });
   }
+
+  /**
+   * 删除字典类型
+   * @param dictCategory：字典类型实例
+   * @returns {Promise<void>}
+   */
   static async deleteDictCategory(dictCategory){
-    dictCategory.destroy();
+    await dictCategory.destroy();
   }
   static async updateDictCategory({categoryName, isActive}, dictCategory){
     dictCategory.categoryName = categoryName || dictCategory.categoryName;
@@ -67,7 +78,7 @@ class DictionaryService {
     let category = await DictionaryCategory.findAll({
       where: conditions,
       include: {
-        attributes: [ 'categoryId', 'dictId', 'dictLabel', 'dictCode', 'isActive' ],
+        attributes: [ 'dictCategoryId', 'dictId', 'dictLabel', 'dictCode', 'isActive' ],
         model: Dictionary,
         as: 'children',  // 定义属性别名
       },

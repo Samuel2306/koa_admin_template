@@ -25,7 +25,6 @@ class DictionaryController {
         try {
           await DictionaryService.createDictCategory({categoryName, categoryCode});
           ctx.body = new SuccessResult({
-
             msg: '创建成功'
           });
         }catch(e){

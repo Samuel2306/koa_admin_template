@@ -3,20 +3,12 @@ const {
   DataTypes,
 } = require('sequelize');
 
-const Ship = sequelize.define('ship', {
-  name: DataTypes.STRING,
-  crewCapacity: DataTypes.INTEGER,
-  amountOfSails: DataTypes.INTEGER
-}, { timestamps: false });
+const Ship = sequelize.define('ship', { name: DataTypes.STRING }, { timestamps: false });
 const Captain = sequelize.define('captain', {
-  name: DataTypes.STRING,
-  skillLevel: {
-    type: DataTypes.INTEGER,
-    validate: { min: 1, max: 10 }
-  }
+  name: { type: DataTypes.STRING, unique: true}
 }, { timestamps: false });
-Captain.hasOne(Ship);
-Ship.belongsTo(Captain, { as: 'leader' });
+Captain.hasOne(Ship, { sourceKey: 'name', foreignKey: 'captainName' });
+Ship.belongsTo(Captain);
 
 Captain.sync({
   force: false,

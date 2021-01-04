@@ -29,12 +29,29 @@ class DictionaryService {
     })
     return dictCategory;
   }
-  static async findCategory(categoryName, categoryCode){
+
+  /**
+   * 查询字典类型
+   * @param categoryName
+   * @param categoryCode
+   * @param isOr: true / false，表示搜索条件是 && 还是 ||
+   * @returns {Promise<*>}
+   */
+  static async findCategory(categoryName, categoryCode, isOr){
     let dictCategory = null;
-    await Promise.all([DictionaryService.findCategoryByName(categoryName), DictionaryService.findCategoryByCode(categoryCode)])
-      .then((res) => {
-        dictCategory = res && res.length ? res.filter((item) => {return !!item})[0] : null;
+    if(isOr){
+      await Promise.all([DictionaryService.findCategoryByName(categoryName), DictionaryService.findCategoryByCode(categoryCode)])
+        .then((res) => {
+          dictCategory = res && res.length ? res.filter((item) => {return !!item})[0] : null;
+        })
+    }else{
+      dictCategory = await DictionaryCategory.findOne({
+        where: {
+          categoryName: categoryName,
+          categoryCode: categoryCode,
+        }
       })
+    }
     return dictCategory
   }
 

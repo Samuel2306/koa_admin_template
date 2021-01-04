@@ -101,12 +101,12 @@ class DictionaryController {
   }
   static async queryDictCategory(ctx){
     let {
-      categoryCode,
+      categoryCodes,
       isActive,
     } = getRequestBody(ctx);
-    categoryCode = categoryCode.split(',');
+    categoryCodes = categoryCodes.split(',');
     try {
-      let category = await DictionaryService.queryDictCategory(categoryCode, isActive);
+      let category = await DictionaryService.queryDictCategory(categoryCodes, isActive);
       ctx.body = new SuccessResult({
         msg: 'success',
         data: category
@@ -115,18 +115,35 @@ class DictionaryController {
       console.log(e);
       ctx.body = new ErrorResult({
         code: 'air_0001',
+        msg: '服务器错误',
+      })
+    }
+  }
+  // 根据用户传入的code列表返回字典列表，是给前端使用的接口
+  static async getDictionariesByCodes(ctx){
+    let {
+      categoryCodes,
+    } = getRequestBody(ctx);
+    categoryCodes = categoryCodes ? categoryCodes.split(',') : [];
+    try {
+      let category = await DictionaryService.queryDictCategory(categoryCodes);
+      ctx.body = new SuccessResult({
+        msg: 'success',
+        data: category
+      })
+    }catch(e){
+      console.log(e);
+      ctx.body = new ErrorResult({
+        code: 'air_0001',
+        msg: '服务器错误',
       })
     }
   }
 
 
-
-
-
-
-
-
-  /* 字典选项接口 */
+  /**
+   * 字典选项相关接口
+   */
   static async createDictionary(ctx){
     const {
       dictCategoryId,
@@ -292,6 +309,9 @@ class DictionaryController {
       })
     }
   }
+  /**
+   * 字典选项相关接口
+   */
 }
 
 module.exports = DictionaryController;

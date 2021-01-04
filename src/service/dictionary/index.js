@@ -96,15 +96,18 @@ class DictionaryService {
    * @param isActive
    * @returns {Promise<Model[] | Array<Model>>}
    */
-  static async queryDictCategory(categoryCode, isActive){
+  static async queryDictCategory(categoryCodes, isActive, isDictActive){
     const conditions = isActive == null ? {
       categoryCode: {
-        [Op.or]: categoryCode || [],
+        [Op.or]: categoryCodes || [],
       },
     } : {
       categoryCode: {
-        [Op.or]: categoryCode || [],
+        [Op.or]: categoryCodes || [],
       },
+      isActive: isActive,
+    };
+    const itemCondition = isDictActive == null ? {} : {
       isActive: isActive,
     };
     let category = await DictionaryCategory.findAll({
@@ -113,6 +116,7 @@ class DictionaryService {
         attributes: [ 'dictCategoryId', 'id', 'dictLabel', 'dictCode', 'isActive' ],
         model: Dictionary,
         as: 'children',  // 定义属性别名
+        where: itemCondition,
       },
     });
     return category;

@@ -20,6 +20,8 @@ let APIToFuncMap = {
   'deleteDictionary': 'deleteDictionary',
   'updateDictionary': 'updateDictionary',
   'queryDictionary': 'queryDictionary',
+
+  'getDictionariesByCodes': 'getDictionariesByCodes',
 };
 createRoutesByMap(DictionaryController, router, APIToFuncMap);
 module.exports = router;

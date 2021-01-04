@@ -25,6 +25,7 @@ const Dictionary = sequelize.define('dictionary', {
     type: DataTypes.BOOLEAN,
     allowNull: false,
     field: 'isActive',
+    defaultValue: 0
   },
 });
 

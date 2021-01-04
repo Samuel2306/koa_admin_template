@@ -16,7 +16,7 @@ const Captain = sequelize.define('captain', {
   }
 }, { timestamps: false });
 Captain.hasOne(Ship);
-Ship.belongsTo(Captain);
+Ship.belongsTo(Captain, { as: 'leader' });
 
 Captain.sync({
   force: false,

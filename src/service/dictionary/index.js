@@ -59,19 +59,34 @@ class DictionaryService {
   static async deleteDictCategory(dictCategory){
     await dictCategory.destroy();
   }
+
+  /**
+   * 更新字典类型
+   * @param categoryName
+   * @param isActive
+   * @param dictCategory
+   * @returns {Promise<void>}
+   */
   static async updateDictCategory({categoryName, isActive}, dictCategory){
     dictCategory.categoryName = categoryName || dictCategory.categoryName;
     dictCategory.isActive = isActive || dictCategory.isActive;
     await dictCategory.save();
   }
+
+  /**
+   * 查询字典
+   * @param categoryCode
+   * @param isActive
+   * @returns {Promise<Model[] | Array<Model>>}
+   */
   static async queryDictCategory(categoryCode, isActive){
     const conditions = isActive == null ? {
       categoryCode: {
-        [Op.or]: categoryCode,
+        [Op.or]: categoryCode || [],
       },
     } : {
       categoryCode: {
-        [Op.or]: categoryCode,
+        [Op.or]: categoryCode || [],
       },
       isActive: isActive,
     };
@@ -92,49 +107,50 @@ class DictionaryService {
 
 
   /* 字典选项相关 */
-  static async findDictByName({dictLabel, categoryId}){
+  static async findDictByName({dictLabel, dictCategoryId}){
     let dictionary = Dictionary.findOne({
       where: {
         dictLabel: dictLabel,
-        categoryId: categoryId,
+        dictCategoryId: dictCategoryId,
       }
     })
     return dictionary
   }
-  static async findDictByCode({dictCode, categoryId}){
+  static async findDictByCode({dictCode, dictCategoryId}){
     let dictionary = Dictionary.findOne({
       where: {
         dictCode: dictCode,
-        categoryId: categoryId,
+        dictCategoryId: dictCategoryId,
       }
     })
     return dictionary;
   }
-  static async findDictionary({dictLabel, dictCode, categoryId}){
+  static async findDictionary({dictLabel, dictCode, dictCategoryId}){
     let dictionary = null;
-    await Promise.all([DictionaryService.findDictByName({dictLabel, categoryId}), DictionaryService.findDictByCode({dictCode, categoryId})])
+    await Promise.all([DictionaryService.findDictByName({dictLabel, dictCategoryId}), DictionaryService.findDictByCode({dictCode, dictCategoryId})])
       .then((res) => {
         dictionary = res && res.length ? res.filter((item) => {return !!item})[0] : null;
       })
     return dictionary
   }
-  static async createDictionary({dictLabel, dictCode, categoryId}){
+  static async createDictionary({dictLabel, dictCode, dictCategoryId}){
     await Dictionary.create({
       dictLabel,
       dictCode,
-      categoryId,
-      isActive: false
+      dictCategoryId
     })
   }
 
   static async deleteDictionary(dict){
-    dict.destroy();
+   await dict.destroy();
   }
-  static async updateDictionary(ctx){
-
+  static async updateDictionary({dictLabel, isActive}, dictionary){
+    dictionary.dictLabel = dictLabel || dictionary.dictLabel;
+    dictionary.isActive = isActive || dictionary.isActive;
+    await dictionary.save();
   }
-  static async queryDictionary(categoryId){
-
+  static async queryDictionary(category){
+    return await category.getChildren();
   }
 }
 

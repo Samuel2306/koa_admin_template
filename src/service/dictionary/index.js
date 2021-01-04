@@ -78,7 +78,7 @@ class DictionaryService {
     let category = await DictionaryCategory.findAll({
       where: conditions,
       include: {
-        attributes: [ 'dictCategoryId', 'dictId', 'dictLabel', 'dictCode', 'isActive' ],
+        attributes: [ 'dictCategoryId', 'id', 'dictLabel', 'dictCode', 'isActive' ],
         model: Dictionary,
         as: 'children',  // 定义属性别名
       },

@@ -57,7 +57,7 @@ class DictionaryController {
       }catch(e){
         console.error(e);
         ctx.body = new ErrorResult({
-          code: 'air_0003',
+          code: 'air_0004',
           msg: '删除失败',
         });
       }
@@ -88,7 +88,7 @@ class DictionaryController {
       }catch(e){
         console.error(e);
         ctx.body = new ErrorResult({
-          code: 'air_0004',
+          code: 'air_0005',
           msg: '更新失败',
         });
       }
@@ -101,12 +101,21 @@ class DictionaryController {
   }
   static async queryDictCategory(ctx){
     let {
+      pageSize,
+      pageNum,
       categoryCodes,
       isActive,
     } = getRequestBody(ctx);
-    categoryCodes = categoryCodes.split(',');
+    if (!pageSize || !pageNum) {
+      ctx.body = new ErrorResult({
+        code: 'air_0002',
+        msg: '请求参数缺失',
+      });
+      return;
+    }
+    categoryCodes = categoryCodes ? categoryCodes.split(',') : [];
     try {
-      let category = await DictionaryService.queryDictCategory(categoryCodes, isActive);
+      let category = await DictionaryService.queryDictCategory({pageSize, pageNum, categoryCodes, isActive});
       ctx.body = new SuccessResult({
         msg: 'success',
         data: category
@@ -218,7 +227,7 @@ class DictionaryController {
         }catch(e){
           console.log(e);
           ctx.body = new ErrorResult({
-            code: 'air_0003',
+            code: 'air_0004',
             msg: '删除失败',
           });
         }
@@ -258,7 +267,7 @@ class DictionaryController {
           }catch(e){
             console.error(e);
             ctx.body = new ErrorResult({
-              code: 'air_0004',
+              code: 'air_0005',
               msg: '更新字典失败',
             });
           }

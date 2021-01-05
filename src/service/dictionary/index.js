@@ -96,28 +96,27 @@ class DictionaryService {
    * @param isActive
    * @returns {Promise<Model[] | Array<Model>>}
    */
-  static async queryDictCategory(categoryCodes, isActive, isDictActive){
-    const conditions = isActive == null ? {
+  static async queryDictCategory({pageSize, pageNum, categoryCodes, isActive}){
+    const conditions = {
       categoryCode: {
         [Op.or]: categoryCodes || [],
       },
-    } : {
-      categoryCode: {
-        [Op.or]: categoryCodes || [],
+      isActive: {
+        [Op.or]: isActive == null ? [] : [isActive],
       },
-      isActive: isActive,
     };
-    const itemCondition = isDictActive == null ? {} : {
-      isActive: isActive,
-    };
+    const offset = parseInt(pageSize * (pageNum - 1));
+    const limit = parseInt(pageSize);
     let category = await DictionaryCategory.findAll({
       where: conditions,
-      include: {
+      offset: offset,
+      limit: limit,
+      /*include: {
         attributes: [ 'dictCategoryId', 'id', 'dictLabel', 'dictCode', 'isActive' ],
         model: Dictionary,
         as: 'children',  // 定义属性别名
         where: itemCondition,
-      },
+      },*/
     });
     return category;
   }

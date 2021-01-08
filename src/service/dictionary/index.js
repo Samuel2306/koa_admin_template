@@ -21,10 +21,10 @@ class DictionaryService {
     })
     return dictCategory;
   }
-  static async findCategoryById(categoryId){
+  static async findCategoryById(id){
     let dictCategory = DictionaryCategory.findOne({
       where: {
-        id: categoryId
+        id: id
       }
     })
     return dictCategory;
@@ -40,7 +40,10 @@ class DictionaryService {
   static async findCategory(categoryName, categoryCode, isOr){
     let dictCategory = null;
     if(isOr){
-      await Promise.all([DictionaryService.findCategoryByName(categoryName), DictionaryService.findCategoryByCode(categoryCode)])
+      await Promise.all([
+        DictionaryService.findCategoryByName(categoryName),
+        DictionaryService.findCategoryByCode(categoryCode),
+      ])
         .then((res) => {
           dictCategory = res && res.length ? res.filter((item) => {return !!item})[0] : null;
         })
@@ -84,9 +87,10 @@ class DictionaryService {
    * @param dictCategory
    * @returns {Promise<void>}
    */
-  static async updateDictCategory({categoryName, isActive}, dictCategory){
-    dictCategory.categoryName = categoryName || dictCategory.categoryName;
-    dictCategory.isActive = isActive || dictCategory.isActive;
+  static async updateDictCategory(params, dictCategory){
+    for (let prop in params) {
+      dictCategory[prop] = params[prop];
+    }
     await dictCategory.save();
   }
 
@@ -107,7 +111,7 @@ class DictionaryService {
     };
     const offset = parseInt(pageSize * (pageNum - 1));
     const limit = parseInt(pageSize);
-    let category = await DictionaryCategory.findAll({
+    let category = await DictionaryCategory.findAndCountAll({
       where: conditions,
       offset: offset,
       limit: limit,

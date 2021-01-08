@@ -14,6 +14,7 @@ let APIToFuncMap = {
   'createDictCategory': 'createDictCategory',
   'deleteDictCategory': 'deleteDictCategory',
   'updateDictCategory': 'updateDictCategory',
+  'changeDictCategoryStatus': 'changeDictCategoryStatus',
   'queryDictCategory': 'queryDictCategory',
 
   'createDictionary': 'createDictionary',

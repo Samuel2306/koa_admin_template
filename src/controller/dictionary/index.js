@@ -68,20 +68,12 @@ class DictionaryController {
       });
     }
   }
-  static async updateDictCategory(ctx){
-    const {
-      categoryName,
-      categoryCode,
-      isActive,
-    } = getRequestBody(ctx);
 
-    let dictCategory = await DictionaryService.findCategoryByCode(categoryCode);
+  static async _updateDictCategory(params, ctx) {
+    let dictCategory = await DictionaryService.findCategoryById(params.dictCategoryId);
     if(dictCategory){
       try {
-        await DictionaryService.updateDictCategory({
-          categoryName,
-          isActive,
-        }, dictCategory);
+        await DictionaryService.updateDictCategory(params, dictCategory);
         ctx.body = new SuccessResult({
           msg: '更新成功'
         });
@@ -99,6 +91,45 @@ class DictionaryController {
       });
     }
   }
+
+  /**
+   * 更新字典类型接口
+   * @param ctx
+   * @returns {Promise<void>}
+   */
+  static async updateDictCategory(ctx){
+    const params = getRequestBody(ctx);
+    await DictionaryController._updateDictCategory(params, ctx)
+  }
+
+  /**
+   * 更改字典类型的启用状态
+   * @param ctx
+   * @returns {Promise<void>}
+   */
+  static async changeDictCategoryStatus(ctx){
+    let params = getRequestBody(ctx);
+    if (params.dictCategoryId == null) {
+      ctx.body = new ErrorResult({
+        code: 'air_0002',
+        msg: '缺少dictCategoryId参数',
+      });
+      return;
+    }
+    if (params.isActive == null) {
+      ctx.body = new ErrorResult({
+        code: 'air_0002',
+        msg: '缺少isActive参数',
+      });
+      return;
+    }
+    params = {
+      dictCategoryId: params.dictCategoryId,
+      isActive: !!params.isActive,
+    };
+    await DictionaryController._updateDictCategory(params, ctx)
+  }
+
   static async queryDictCategory(ctx){
     let {
       pageSize,
@@ -128,6 +159,10 @@ class DictionaryController {
       })
     }
   }
+
+
+
+
   // 根据用户传入的code列表返回字典列表，是给前端使用的接口
   static async getDictionariesByCodes(ctx){
     let {
@@ -138,14 +173,14 @@ class DictionaryController {
       let category = await DictionaryService.queryDictCategory(categoryCodes);
       ctx.body = new SuccessResult({
         msg: 'success',
-        data: category
-      })
+        data: category,
+      });
     }catch(e){
       console.log(e);
       ctx.body = new ErrorResult({
         code: 'air_0001',
         msg: '服务器错误',
-      })
+      });
     }
   }
 

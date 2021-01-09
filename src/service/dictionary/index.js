@@ -115,6 +115,9 @@ class DictionaryService {
       distinct: true,  // 这个必须加，不然每一条Dictionary数据也会被计数
       offset: offset,
       limit: limit,
+      order: [
+        ['createdAt', 'DESC'],
+      ],
       include: [{
         // attributes: [ 'dictCategoryId', 'id', 'dictLabel', 'dictCode', 'isActive' ],
         model: Dictionary,

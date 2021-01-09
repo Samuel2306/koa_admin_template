@@ -10,7 +10,7 @@ class DictionaryService {
       where: {
         categoryName: categoryName
       }
-    })
+    });
     return dictCategory
   }
   static async findCategoryByCode(categoryCode){
@@ -18,7 +18,7 @@ class DictionaryService {
       where: {
         categoryCode: categoryCode
       }
-    })
+    });
     return dictCategory;
   }
   static async findCategoryById(id){
@@ -26,7 +26,7 @@ class DictionaryService {
       where: {
         id: id
       }
-    })
+    });
     return dictCategory;
   }
 
@@ -46,14 +46,14 @@ class DictionaryService {
       ])
         .then((res) => {
           dictCategory = res && res.length ? res.filter((item) => {return !!item})[0] : null;
-        })
+        });
     }else{
       dictCategory = await DictionaryCategory.findOne({
         where: {
           categoryName: categoryName,
           categoryCode: categoryCode,
         }
-      })
+      });
     }
     return dictCategory
   }

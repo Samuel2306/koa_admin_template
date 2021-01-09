@@ -16,7 +16,7 @@ class DictionaryController {
       categoryCode,
     } = getRequestBody(ctx);
     if(categoryName && categoryCode){
-      let category = await DictionaryService.findCategory({categoryName, categoryCode}, true);
+      let category = await DictionaryService.findCategory(categoryName, categoryCode, true);
       if(category){
         ctx.body = new ErrorResult({
           code: 'air_0020',

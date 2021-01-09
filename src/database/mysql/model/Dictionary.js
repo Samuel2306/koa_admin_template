@@ -27,6 +27,8 @@ const Dictionary = sequelize.define('dictionary', {
     field: 'isActive',
     defaultValue: 0
   },
+}, {
+  paranoid: true,  // 实现逻辑删除
 });
 
 

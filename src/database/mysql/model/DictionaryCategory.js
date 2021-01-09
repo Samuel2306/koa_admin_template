@@ -29,6 +29,8 @@ const DictionaryCategory = sequelize.define('dictCategory', {
     field: 'isActive',
     defaultValue: 0,
   },
+}, {
+  paranoid: true,  // 实现逻辑删除
 });
 
 

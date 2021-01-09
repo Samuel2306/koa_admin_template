@@ -45,9 +45,9 @@ class DictionaryController {
   }
   static async deleteDictCategory(ctx){
     const {
-      categoryCode,
+      dictCategoryId,
     } = getRequestBody(ctx);
-    let dictCategory = await DictionaryService.findCategoryByCode(categoryCode);
+    let dictCategory = await DictionaryService.findCategoryById(dictCategoryId);
     if(dictCategory){
       try {
         await DictionaryService.deleteDictCategory(dictCategory);

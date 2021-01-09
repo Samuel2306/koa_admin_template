@@ -112,15 +112,15 @@ class DictionaryService {
     const offset = parseInt(pageSize * (pageNum - 1));
     const limit = parseInt(pageSize);
     let category = await DictionaryCategory.findAndCountAll({
-      where: conditions,
+      distinct: true,  // 这个必须加，不然每一条Dictionary数据也会被计数
       offset: offset,
       limit: limit,
-      /*include: {
-        attributes: [ 'dictCategoryId', 'id', 'dictLabel', 'dictCode', 'isActive' ],
+      include: [{
+        // attributes: [ 'dictCategoryId', 'id', 'dictLabel', 'dictCode', 'isActive' ],
         model: Dictionary,
         as: 'children',  // 定义属性别名
-        where: itemCondition,
-      },*/
+      }],
+      where: conditions,
     });
     return category;
   }

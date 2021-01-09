@@ -125,11 +125,16 @@ class DictionaryController {
     }
     params = {
       dictCategoryId: params.dictCategoryId,
-      isActive: !!params.isActive,
+      isActive: params.isActive,
     };
     await DictionaryController._updateDictCategory(params, ctx)
   }
 
+  /**
+   * 字典类型查询的接口（带翻页）
+   * @param ctx
+   * @returns {Promise<void>}
+   */
   static async queryDictCategory(ctx){
     let {
       pageSize,

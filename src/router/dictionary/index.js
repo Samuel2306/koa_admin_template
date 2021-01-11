@@ -21,6 +21,7 @@ let APIToFuncMap = {
   'deleteDictionary': 'deleteDictionary',
   'updateDictionary': 'updateDictionary',
   'queryDictionary': 'queryDictionary',
+  'changeDictionaryStatus': 'changeDictionaryStatus',
 
   'getDictionariesByCodes': 'getDictionariesByCodes',
 };

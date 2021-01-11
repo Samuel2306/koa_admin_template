@@ -16,8 +16,12 @@ class DictionaryController {
       categoryCode,
     } = getRequestBody(ctx);
     if(categoryName && categoryCode){
-      let category = await DictionaryService.findCategory(categoryName, categoryCode, true);
-      if(category){
+      let categories = await DictionaryService.findCategory({
+        categoryName,
+        categoryCode,
+        isOr: true
+      });
+      if(categories && categories.length){
         ctx.body = new ErrorResult({
           code: 'air_0020',
           msg: '已存在相同名称或者编码的字典类型',
@@ -87,7 +91,7 @@ class DictionaryController {
     }else{
       ctx.body = new ErrorResult({
         code: 'air_0022',
-        msg: 'categoryCode对应的字典类型不存在',
+        msg: 'dictCategoryId对应的字典类型不存在',
       });
     }
   }
@@ -98,8 +102,31 @@ class DictionaryController {
    * @returns {Promise<void>}
    */
   static async updateDictCategory(ctx){
-    const params = getRequestBody(ctx);
-    await DictionaryController._updateDictCategory(params, ctx)
+    let params = getRequestBody(ctx);
+    params = {
+      dictCategoryId: params.dictCategoryId,
+      categoryName: params.categoryName,
+      categoryCode: params.categoryCode,
+    };
+    let categories = await DictionaryService.findCategory({
+      categoryName: params.categoryName,
+      categoryCode: params.categoryCode,
+      isOr: true,
+    });
+    let flag = false
+    categories.forEach((category) => {
+      if (category.id != params.dictCategoryId) {
+        flag = true;
+      }
+    })
+    if (flag) {
+      ctx.body = new ErrorResult({
+        code: 'air_0020',
+        msg: '已存在相同名称或者编码的字典类型',
+      });
+    }else{
+      await DictionaryController._updateDictCategory(params, ctx);
+    }
   }
 
   /**
@@ -189,7 +216,6 @@ class DictionaryController {
     }
   }
 
-
   /**
    * 字典选项相关接口
    */
@@ -200,39 +226,30 @@ class DictionaryController {
       dictCode,
     } = getRequestBody(ctx);
     if(dictLabel && dictCode && dictCategoryId){
-      let category = await DictionaryService.findCategoryById(dictCategoryId);
-      if(category){
-        let dictionaries = await category.getChildren() || [];
-        dictionaries = dictionaries.filter((item) => {
-          return item.dictLabel == dictLabel || item.dictCode == dictCode
-        });
-        /**
-         * 如果已经存在相应的字典，就返回一个错误结果
-         */
-        if(dictionaries.length){
-          ctx.body = new ErrorResult({
-            code: 'air_0021',
-            msg: '已存在相同名称或者编码的字典选项',
-          });
-        }else{
-          try {
-            await DictionaryService.createDictionary({dictLabel, dictCode, dictCategoryId});
-            ctx.body = new SuccessResult({
-              msg: '创建字典成功'
-            });
-          }catch(e){
-            console.error(e);
-            ctx.body = new ErrorResult({
-              code: 'air_0001',
-              msg: '创建字典失败',
-            });
-          }
-        }
-      }else{
+      let dictionaries = await DictionaryService.findDictionary({
+        dictCategoryId,
+        dictLabel,
+        dictCode,
+        isOr: true,
+      });
+      if(dictionaries && dictionaries.length){
         ctx.body = new ErrorResult({
-          code: 'air_0022',
-          msg: 'categoryCode对应的字典类型不存在',
+          code: 'air_0021',
+          msg: '已存在相同名称或者编码的字典选项',
         });
+      }else{
+        try {
+          await DictionaryService.createDictionary({dictLabel, dictCode, dictCategoryId});
+          ctx.body = new SuccessResult({
+            msg: '创建字典成功'
+          });
+        }catch(e){
+          console.error(e);
+          ctx.body = new ErrorResult({
+            code: 'air_0001',
+            msg: '创建字典失败',
+          });
+        }
       }
     }else{
       ctx.body = new ErrorResult({
@@ -244,112 +261,136 @@ class DictionaryController {
   static async deleteDictionary(ctx){
     const {
       dictCategoryId,
-      dictCode,
+      id,
     } = getRequestBody(ctx);
-    let category = await DictionaryService.findCategoryById(dictCategoryId);
-    if(!category){
+    let dict = await DictionaryService.findDictById({id, dictCategoryId});
+    if(!dict){
       ctx.body = new ErrorResult({
-        code: 'air_0022',
-        msg: 'categoryCode对应的字典类型不存在',
+        code: 'air_0023',
+        msg: '字典不存在',
       });
     }else{
-      let dictionaries = await category.getChildren() || [];
-      let res = dictionaries.filter((item) => {
-        return item.dictCode == dictCode;
-      });
-      if(res.length){
-        let dict = res[0];
-        try {
-          await DictionaryService.deleteDictionary(dict);
-          ctx.body = new SuccessResult({
-            msg: '删除字典成功'
-          });
-        }catch(e){
-          console.log(e);
-          ctx.body = new ErrorResult({
-            code: 'air_0004',
-            msg: '删除失败',
-          });
-        }
-      }else{
+      try {
+        await DictionaryService.deleteDictionary(dict);
+        ctx.body = new SuccessResult({
+          msg: '删除字典成功'
+        });
+      }catch(e){
+        console.log(e);
         ctx.body = new ErrorResult({
-          code: 'air_0023',
-          msg: 'dictCode对应的字典不存在',
+          code: 'air_0004',
+          msg: '删除失败',
         });
       }
     }
   }
-  static async updateDictionary(ctx){
-    const {
-      dictCategoryId,
-      dictLabel,
-      dictCode,
-      isActive = 0,
-    } = getRequestBody(ctx);
-    if(dictLabel && dictCode && dictCategoryId){
-      let category = await DictionaryService.findCategoryById(dictCategoryId);
-      if(category){
-        let dictionaries = await category.getChildren() || [];
-        let dictionary = dictionaries.filter((item) => {
-          return item.dictCode == dictCode
-        })[0];
-        if(!dictionary){
-          ctx.body = new ErrorResult({
-            code: 'air_0023',
-            msg: 'dictCode对应的字典不存在',
-          });
-        }else{
-          try {
-            await DictionaryService.updateDictionary({dictLabel, isActive}, dictionary);
-            ctx.body = new SuccessResult({
-              msg: '更新字典成功'
-            });
-          }catch(e){
-            console.error(e);
-            ctx.body = new ErrorResult({
-              code: 'air_0005',
-              msg: '更新字典失败',
-            });
-          }
-        }
-      }else{
+
+  static async _updateDictionary(params, ctx) {
+    let dict = await DictionaryService.findDictById({id: params.id, dictCategoryId: params.dictCategoryId});
+    if(dict){
+      try {
+        await DictionaryService.updateDictCategory(params, dict);
+        ctx.body = new SuccessResult({
+          msg: '更新成功'
+        });
+      }catch(e){
+        console.error(e);
         ctx.body = new ErrorResult({
-          code: 'air_0022',
-          msg: 'categoryCode对应的字典类型不存在',
+          code: 'air_0005',
+          msg: '更新失败',
         });
       }
     }else{
       ctx.body = new ErrorResult({
-        code: 'air_0002',
-        msg: '请求参数缺失',
+        code: 'air_0023',
+        msg: '字典不存在',
       });
     }
+  }
+
+  static async updateDictionary(ctx){
+    let params = getRequestBody(ctx);
+    params = {
+      dictCategoryId: params.dictCategoryId,
+      id: params.id,
+      dictLabel: params.dictLabel,
+      dictCode: params.dictCode,
+    };
+    let dictionaries = await DictionaryService.findDictionary({
+      dictCategoryId: params.dictCategoryId,
+      dictLabel: params.dictLabel,
+      dictCode: params.dictCode,
+      isOr: true,
+    });
+    let flag = false;
+    dictionaries.forEach((dict) => {
+      if (dict.id != params.id) {
+        flag = true;
+      }
+    });
+    if (flag) {
+      ctx.body = new ErrorResult({
+        code: 'air_0020',
+        msg: '已存在相同名称或者编码的字典',
+      });
+    }else{
+      await DictionaryController._updateDictionary(params, ctx)
+    }
+  }
+  static async changeDictionaryStatus(ctx) {
+    let params = getRequestBody(ctx);
+    if (params.dictCategoryId == null) {
+      ctx.body = new ErrorResult({
+        code: 'air_0002',
+        msg: '缺少dictCategoryId参数',
+      });
+      return;
+    }
+    if (params.isActive == null) {
+      ctx.body = new ErrorResult({
+        code: 'air_0002',
+        msg: '缺少isActive参数',
+      });
+      return;
+    }
+    if (params.id == null) {
+      ctx.body = new ErrorResult({
+        code: 'air_0002',
+        msg: '缺少id参数',
+      });
+      return;
+    }
+    params = {
+      dictCategoryId: params.dictCategoryId,
+      id: params.id,
+      isActive: params.isActive,
+    };
+    await DictionaryController._updateDictionary(params, ctx)
   }
   static async queryDictionary(ctx){
     const {
+      pageSize,
+      pageNum,
       dictCategoryId,
       isActive,
     } = getRequestBody(ctx);
 
     try {
-      let category = await DictionaryService.findCategoryById(dictCategoryId);
-      if(!category){
-        ctx.body = new ErrorResult({
-          code: 'air_0022',
-          msg: 'categoryCode对应的字典类型不存在',
-        });
-      }else{
-        let res = await DictionaryService.queryDictionary(category);
-        if(isActive != undefined){
-          res = res.filter((item) => {
-            return item == isActive;
-          })
-        }
-        ctx.body = new SuccessResult({
-          msg: 'success',
-          data: res
+      let res = await DictionaryService.queryDictionary({
+        pageSize,
+        pageNum,
+        dictCategoryId,
+        isActive,
+      });
+      if(isActive != undefined){
+        res = res.filter((item) => {
+          return item == isActive;
         })
       }
+      ctx.body = new SuccessResult({
+        msg: 'success',
+        data: res
+      })
     }catch(e){
       console.log(e);
       ctx.body = new ErrorResult({

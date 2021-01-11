@@ -46,7 +46,7 @@ class DictionaryService {
    * @param isOr: true / false，表示搜索条件是 && 还是 ||
    * @returns {Promise<*>}
    */
-  static async findCategory(categoryName, categoryCode, isOr){
+  static async findCategory({categoryName, categoryCode, isOr}){
     let dictCategory = null;
     if(isOr){
       await Promise.all([
@@ -54,7 +54,7 @@ class DictionaryService {
         DictionaryService.findCategoryByCode(categoryCode),
       ])
         .then((res) => {
-          dictCategory = res && res.length ? res.filter((item) => {return !!item})[0] : null;
+          dictCategory = res && res.length ? res.filter((item) => {return !!item}) : null;
         });
     }else{
       dictCategory = await DictionaryCategory.findOne({
@@ -161,17 +161,38 @@ class DictionaryService {
         dictCode: dictCode,
         dictCategoryId: dictCategoryId,
       }
+    });
+    return dictionary;
+  }
+  static async findDictById({id, dictCategoryId}){
+    let dictionary = Dictionary.findOne({
+      where: {
+        id: id,
+        dictCategoryId: dictCategoryId,
+      }
     })
     return dictionary;
   }
-  static async findDictionary({dictLabel, dictCode, dictCategoryId}){
+  static async findDictionary({dictLabel, dictCode, dictCategoryId, isOr}){
     let dictionary = null;
-    await Promise.all([DictionaryService.findDictByName({dictLabel, dictCategoryId}), DictionaryService.findDictByCode({dictCode, dictCategoryId})])
-      .then((res) => {
-        dictionary = res && res.length ? res.filter((item) => {return !!item})[0] : null;
+    if (isOr) {
+      await Promise.all([DictionaryService.findDictByName({dictLabel, dictCategoryId}), DictionaryService.findDictByCode({dictCode, dictCategoryId})])
+        .then((res) => {
+          dictionary = res && res.length ? res.filter((item) => {return !!item}) : null;
+        })
+    } else{
+      dictionary = await Dictionary.findOne({
+        where: {
+          dictCategoryId,
+          dictLabel,
+          dictCode,
+        }
       })
+    }
+
     return dictionary
   }
+
   static async createDictionary({dictLabel, dictCode, dictCategoryId}){
     await Dictionary.create({
       dictLabel,
@@ -179,17 +200,30 @@ class DictionaryService {
       dictCategoryId
     })
   }
-
   static async deleteDictionary(dict){
-   await dict.destroy();
+    await dict.destroy();
   }
   static async updateDictionary({dictLabel, isActive}, dictionary){
     dictionary.dictLabel = dictLabel || dictionary.dictLabel;
+    dictionary.dictCode = dictLabel || dictionary.dictCode;
     dictionary.isActive = isActive || dictionary.isActive;
     await dictionary.save();
   }
-  static async queryDictionary(category){
-    return await category.getChildren();
+  static async queryDictionary({pageSize, pageNum, dictCategoryId,}){
+    const offset = parseInt(pageSize * (pageNum - 1));
+    const limit = parseInt(pageSize);
+    let dictionaries = await Dictionary.findAndCountAll({
+      distinct: true,  // 这个必须加，不然每一条Dictionary数据也会被计数
+      offset: offset,
+      limit: limit,
+      order: [
+        ['createdAt', 'DESC'],
+      ],
+      where: {
+        dictCategoryId: dictCategoryId,
+      },
+    });
+    return dictionaries;
   }
 }
 

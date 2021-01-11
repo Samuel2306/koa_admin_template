@@ -18,7 +18,7 @@ const resultCodesAndMessage = {
   /* 字典相关 */
   'air_0020': '已存在相同名称或者编码的字典类型',
   'air_0021': '已存在相同名称或者编码的字典选项',
-  'air_0022': 'categoryCode对应的字典类型不存在',
+  'air_0022': 'dictCategoryId对应的字典类型不存在',
   'air_0023': 'dictCode对应的字典不存在',
   /* 字典相关 */
 }

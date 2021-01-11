@@ -15,13 +15,13 @@ const DictionaryCategory = sequelize.define('dictCategory', {
     type: DataTypes.STRING,
     allowNull: false,
     field: 'categoryName',
-    unique: true,
+    // unique: true,
   },
   categoryCode: {
     type: DataTypes.STRING,
     allowNull: false,
     field: 'categoryCode',
-    unique: true,
+    // unique: true,
   },
   isActive: {
     type: DataTypes.BOOLEAN,

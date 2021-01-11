@@ -8,7 +8,10 @@ class DictionaryService {
   static async findCategoryByName(categoryName){
     let dictCategory = DictionaryCategory.findOne({
       where: {
-        categoryName: categoryName
+        categoryName: categoryName,
+        deletedAt: {
+          [Op.is]: null,
+        },
       }
     });
     return dictCategory
@@ -16,7 +19,10 @@ class DictionaryService {
   static async findCategoryByCode(categoryCode){
     let dictCategory = DictionaryCategory.findOne({
       where: {
-        categoryCode: categoryCode
+        categoryCode: categoryCode,
+        deletedAt: {
+          [Op.is]: null,
+        },
       }
     });
     return dictCategory;
@@ -24,7 +30,10 @@ class DictionaryService {
   static async findCategoryById(id){
     let dictCategory = DictionaryCategory.findOne({
       where: {
-        id: id
+        id: id,
+        deletedAt: {
+          [Op.is]: null,
+        },
       }
     });
     return dictCategory;
@@ -52,6 +61,9 @@ class DictionaryService {
         where: {
           categoryName: categoryName,
           categoryCode: categoryCode,
+          deletedAt: {
+            [Op.is]: null,
+          },
         }
       });
     }

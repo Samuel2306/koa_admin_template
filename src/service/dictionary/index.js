@@ -112,7 +112,7 @@ class DictionaryService {
    * @param isActive
    * @returns {Promise<Model[] | Array<Model>>}
    */
-  static async queryDictCategory({pageSize, pageNum, categoryCodes, isActive}){
+  static async queryDictCategory({pageSize, pageNum, categoryCodes, isActive, isChildActive}){
     const conditions = {
       categoryCode: {
         [Op.or]: categoryCodes || [],
@@ -134,6 +134,11 @@ class DictionaryService {
         // attributes: [ 'dictCategoryId', 'id', 'dictLabel', 'dictCode', 'isActive' ],
         model: Dictionary,
         as: 'children',  // 定义属性别名
+        where: {
+          isActive: {
+            [Op.or]: isChildActive == null ? [] : [isChildActive],
+          },
+        }
       }],
       where: conditions,
     });

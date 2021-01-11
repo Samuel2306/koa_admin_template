@@ -202,13 +202,17 @@ class DictionaryController {
     } = getRequestBody(ctx);
     categoryCodes = categoryCodes ? categoryCodes.split(',') : [];
     try {
-      let category = await DictionaryService.queryDictCategory(categoryCodes);
+      let categories = await DictionaryService.queryDictCategory({
+        categoryCodes,
+        pageSize: 10000,
+        pageNum: 1,
+        isChildActive: true
+      });
       ctx.body = new SuccessResult({
         msg: 'success',
-        data: category,
+        data: categories.rows,
       });
     }catch(e){
-      console.log(e);
       ctx.body = new ErrorResult({
         code: 'air_0001',
         msg: '服务器错误',

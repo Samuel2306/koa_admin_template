@@ -1,6 +1,7 @@
 const mysqlConnection = require('./database/mysql/connection');
 
-mysqlConnection.authenticate()
+mysqlConnection
+  .authenticate()
   .then(function() {
     console.log("数据库连接成功");
     const app = require('./server');

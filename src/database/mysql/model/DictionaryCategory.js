@@ -1,4 +1,4 @@
-const sequelize = require('../connection')
+const sequelize = require('../connection');
 const {
   DataTypes,
 } = require('sequelize');

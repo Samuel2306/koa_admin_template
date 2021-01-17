@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "runServer:debugger": "cross-env NODE_ENV=development nodemon --inspect ./src/index.js",
     "runServer:dev": "cross-env NODE_ENV=development nodemon ./src/index.js",
     "runServer:prod": "cross-env NODE_ENV=production nodemon ./src/index.js"
   },

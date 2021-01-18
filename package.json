@@ -24,7 +24,8 @@
     "qs": "^6.9.4",
     "redis": "^3.0.2",
     "sequelize": "^6.3.5",
-    "svg-captcha": "^1.4.0"
+    "svg-captcha": "^1.4.0",
+    "ws": "^7.4.2"
   },
   "devDependencies": {
     "cross-env": "^7.0.3"

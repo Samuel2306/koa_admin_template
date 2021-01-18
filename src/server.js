@@ -2,10 +2,10 @@ const Koa = require('koa');
 const KoaCompose = require('koa-compose');
 const routers = require('./router/index');
 const middlewareQueue = require('./middleware');
+const WS = require('./websocket');
 
 module.exports = function(){
   const app = new Koa();
-
 
   // 加入所有中间件
   const compose = KoaCompose(middlewareQueue);
@@ -18,4 +18,6 @@ module.exports = function(){
     app.use(router.allowedMethods())
   }
   app.listen(5000);
+  WS.createWebSocketServer();
+  WS.createWebSocketClient();
 }

@@ -16,12 +16,12 @@ const DictionaryCategory = sequelize.define('dictCategory', {
     allowNull: false,
     field: 'categoryName',
     // unique: true,
-    set(value) {
+    /*set(value) {
       this.setDataValue('categoryName', value);
     },
     get() {
       return this.getDataValue('categoryName');
-    },
+    },*/
   },
   categoryCode: {
     type: DataTypes.STRING,
@@ -37,7 +37,7 @@ const DictionaryCategory = sequelize.define('dictCategory', {
   },
 }, {
   paranoid: true,  // 实现逻辑删除
-  getterMethods: {
+  /*getterMethods: {
     categoryCode: () => {
       return this.getDataValue('categoryCode');
     }
@@ -46,7 +46,7 @@ const DictionaryCategory = sequelize.define('dictCategory', {
     categoryCode: (value) => {
       this.setDataValue('categoryCode', value);
     }
-  },
+  },*/
 });
 
 

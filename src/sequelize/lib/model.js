@@ -1323,8 +1323,6 @@ class Model {
    * @returns {Promise<Model>}
    */
   static async sync(options) {
-    debugger;
-
     options = { ...this.options, ...options };
     options.hooks = options.hooks === undefined ? true : !!options.hooks;
 

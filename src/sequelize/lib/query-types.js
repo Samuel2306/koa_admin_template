@@ -2,6 +2,7 @@
 
 /**
  * An enum of query types used by `sequelize.query`
+ * sql命令的枚举
  *
  * @see {@link Sequelize#query}
  *

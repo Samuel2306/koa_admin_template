@@ -12,6 +12,7 @@ let sequelize  = new Sequelize(
   {
     host: mysqlConfig.host,
     dialect: 'mysql', // 表示连接的数据库是mysql
+    databaseVersion: '5.7.4',
     pool: {
       max: 5,
       min: 0,

@@ -2,7 +2,7 @@
 
 const url = require('url');
 const path = require('path');
-const retry = require('retry-as-promised');
+const retry = require('../../retry-as-promised');
 const _ = require('lodash');
 
 const Utils = require('./utils');
@@ -256,6 +256,18 @@ class Sequelize {
       logging: console.log,
       omitNull: false,
       native: false,
+      /**
+       * 实现读写分离的配置属性
+       * Sequelize支持主从复制/读复制，即，当要执行SELECT查询时，可以连接多个服务器。当执行主从复制时，可以指定一台或多台服务器充当读取副本，
+       * 并指定一台服务器充当写入主服务器，该服务器会处理所有写入和更新并将它们传到副本（实际的复制过程不是由Sequelize，而是后端数据库）。
+       * replication: {
+       *    read: [
+       *      { host: '8.8.8.8', username: 'read-username', password: 'some-password' },
+       *      { host: '9.9.9.9', username: 'another-username', password: null }
+       *    ],
+       *    write: { host: '1.1.1.1', username: 'write-username', password: 'any-password' }
+       * },
+       */
       replication: false,
       ssl: undefined,
       pool: {},
@@ -605,7 +617,7 @@ class Sequelize {
 
     const retryOptions = { ...this.options.retry, ...options.retry };
 
-    return retry(async () => {
+    let result = retry(async () => {
       if (options.transaction === undefined && Sequelize._cls) {
         options.transaction = Sequelize._cls.get('transaction');
       }
@@ -626,6 +638,7 @@ class Sequelize {
         }
       }
     }, retryOptions);
+    return result;
   }
 
   /**
@@ -853,12 +866,14 @@ class Sequelize {
 
   /**
    * Test the connection by trying to authenticate. It runs `SELECT 1+1 AS result` query.
+   * 直接触发一个查询操作来检测数据库是否正常连接
    *
    * @param {object} [options={}] query options
    *
    * @returns {Promise}
    */
   async authenticate(options) {
+    debugger
     options = {
       raw: true,
       plain: true,
@@ -867,10 +882,9 @@ class Sequelize {
     };
 
     await this.query('SELECT 1+1 AS result', options);
-
     return;
   }
-
+  // 获取数据库版本号
   async databaseVersion(options) {
     return await this.getQueryInterface().databaseVersion(options);
   }

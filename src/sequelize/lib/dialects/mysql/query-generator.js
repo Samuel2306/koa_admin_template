@@ -71,7 +71,7 @@ class MySQLQueryGenerator extends AbstractQueryGenerator {
   showSchemasQuery() {
     return 'SHOW TABLES';
   }
-
+  // 生成获取数据库版本的sql语句
   versionQuery() {
     return 'SELECT VERSION() as `version`';
   }

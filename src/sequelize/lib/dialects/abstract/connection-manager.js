@@ -1,7 +1,23 @@
 'use strict';
 
-const { Pool, TimeoutError } = require('sequelize-pool');
+const { Pool, TimeoutError } = require('../../../../sequelize-pool');
 const _ = require('lodash');
+
+/**
+ * Semantic Version是当下被大多数软件/库使用的一套版本命名规范, Semver是一个专门分析Semantic Version（语义化版本）的工具
+ * semver可以作为一个node模块，同时也可以作为一个命令行工具。功能包括：
+ *  比较两个版本号的大小
+ *  验证某个版本号是否合法
+ *  提取版本号，例如从“=v1.2.1”体取出"1.2.1"
+ *  分析版本号是否属于某个范围或符合一系列条件
+ *  等等…
+ * @type {{
+ *  coerce, compare, minor, intersects, cmp, lt, SemVer, rcompareIdentifiers, Comparator, valid, patch, major,
+ *  compareBuild, satisfies, gte, tokens, neq, lte, rcompare, compareLoose, compareIdentifiers, inc, SEMVER_SPEC_VERSION,
+ *  minSatisfying, minVersion, gtr, src, diff, validRange, parse, sort, ltr, clean, rsort, eq, Range, gt, simplifyRange,
+ *  re, toComparators, prerelease, outside, maxSatisfying, subset}|*
+ * }
+ */
 const semver = require('semver');
 const errors = require('../../errors');
 const { logger } = require('../../utils/logger');
@@ -17,6 +33,11 @@ const debug = logger.debugContext('pool');
  * @private
  */
 class ConnectionManager {
+  /**
+   * 构造函数
+   * @param dialect: 数据库实例对象
+   * @param sequelize：sequelize实例对象
+   */
   constructor(dialect, sequelize) {
     const config = _.cloneDeep(sequelize.config);
 
@@ -123,13 +144,13 @@ class ConnectionManager {
    */
   initPools() {
     const config = this.config;
-
     if (!config.replication) {
+      // Pool类只是一个管理连接的工具，真正创建连接和销毁连接还是定义在ConnectionManager类上
       this.pool = new Pool({
         name: 'sequelize',
-        create: () => this._connect(config),
+        create: () => this._connect(config),  // 定义创建连接的方法
         destroy: async connection => {
-          const result = await this._disconnect(connection);
+          const result = await this._disconnect(connection); // 定义销毁连接的方法
           debug('connection destroy');
           return result;
         },
@@ -147,6 +168,10 @@ class ConnectionManager {
       return;
     }
 
+
+    /**
+     * 下面的代码是用来处理读写分离的情况
+     */
     if (!Array.isArray(config.replication.read)) {
       config.replication.read = [config.replication.read];
     }
@@ -315,8 +340,11 @@ class ConnectionManager {
    * @returns {Promise<Connection>}
    */
   async _connect(config) {
+    // 调用beforeConnect钩子函数
     await this.sequelize.runHooks('beforeConnect', config);
+    // 调用dialect实例的connectionManager实例的connect方法，this.dialect.connectionManager是针对特定数据库的实现类
     const connection = await this.dialect.connectionManager.connect(config);
+    // 调用afterConnect钩子函数
     await this.sequelize.runHooks('afterConnect', connection, config);
     return connection;
   }

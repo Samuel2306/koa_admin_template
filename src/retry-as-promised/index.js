@@ -36,7 +36,6 @@ function matches(match, err) {
  * @returns {Promise | Promise<any>}
  */
 module.exports = function retryAsPromised(callback, options) {
-  debugger;
   if (!callback || !options) {
     throw new Error(
       'retry-as-promised must be passed a callback and a options set or a number'

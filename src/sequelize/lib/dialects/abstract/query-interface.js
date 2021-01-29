@@ -17,7 +17,7 @@ class QueryInterface {
   }
 
   /**
-   * Create a database
+   * Create a database  创建一个数据库
    *
    * @param {string} database  Database name to create
    * @param {object} [options] Query options
@@ -132,7 +132,7 @@ class QueryInterface {
   }
 
   /**
-   * Create a table with given set of attributes
+   * 根据给定的属性创建表格
    *
    * ```js
    * queryInterface.createTable(
@@ -177,14 +177,15 @@ class QueryInterface {
    * )
    * ```
    *
-   * @param {string} tableName  Name of table to create
-   * @param {object} attributes Object representing a list of table attributes to create
-   * @param {object} [options] create table and query options
-   * @param {Model}  [model] model class
+   * @param {string} 创建表格的名称
+   * @param {object} 表格列对象的集合
+   * @param {object} [options] 创建表格和查询的配置参数
+   * @param {Model}  [model] Model类
    *
    * @returns {Promise}
    */
   async createTable(tableName, attributes, options, model) {
+
     let sql = '';
 
     options = { ...options };

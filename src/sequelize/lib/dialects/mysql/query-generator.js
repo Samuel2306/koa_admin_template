@@ -76,6 +76,13 @@ class MySQLQueryGenerator extends AbstractQueryGenerator {
     return 'SELECT VERSION() as `version`';
   }
 
+  /**
+   * 构建创建表格的sql语句
+   * @param tableName：表格名称
+   * @param attributes：列
+   * @param options
+   * @returns {string|*}
+   */
   createTableQuery(tableName, attributes, options) {
     options = {
       engine: 'InnoDB',
@@ -84,15 +91,15 @@ class MySQLQueryGenerator extends AbstractQueryGenerator {
       ...options
     };
 
-    const primaryKeys = [];
-    const foreignKeys = {};
-    const attrStr = [];
+    const primaryKeys = []; // 主键列表
+    const foreignKeys = {}; // 保存外键的对象
+    const attrStr = []; // 保存每个列的描述字符串列表，主键和外键的描述会被先保存到 primaryKeys 和 foreignKeys 中
 
     for (const attr in attributes) {
       if (!Object.prototype.hasOwnProperty.call(attributes, attr)) continue;
       const dataType = attributes[attr];
       let match;
-
+      // 处理主键，
       if (dataType.includes('PRIMARY KEY')) {
         primaryKeys.push(attr);
 
@@ -113,7 +120,7 @@ class MySQLQueryGenerator extends AbstractQueryGenerator {
         attrStr.push(`${this.quoteIdentifier(attr)} ${dataType}`);
       }
     }
-
+    // 将table名称前后加上 '`'
     const table = this.quoteTable(tableName);
     let attributesClause = attrStr.join(', ');
     const pkString = primaryKeys.map(pk => this.quoteIdentifier(pk)).join(', ');
@@ -128,7 +135,7 @@ class MySQLQueryGenerator extends AbstractQueryGenerator {
         }
       });
     }
-
+    // "`userId` INTEGER NOT NULL auto_increment , `userName` VARCHAR(255) NOT NULL, `password` VARCHAR(255) NOT NULL, `createdAt` DATETIME NOT NULL, `updatedAt` DATETIME NOT NULL, PRIMARY KEY (`userId`)"
     if (pkString.length > 0) {
       attributesClause += `, PRIMARY KEY (${pkString})`;
     }
@@ -138,8 +145,7 @@ class MySQLQueryGenerator extends AbstractQueryGenerator {
         attributesClause += `, FOREIGN KEY (${this.quoteIdentifier(fkey)}) ${foreignKeys[fkey]}`;
       }
     }
-
-    return Utils.joinSQLFragments([
+    let res = Utils.joinSQLFragments([
       'CREATE TABLE IF NOT EXISTS',
       table,
       `(${attributesClause})`,
@@ -151,6 +157,8 @@ class MySQLQueryGenerator extends AbstractQueryGenerator {
       options.rowFormat && `ROW_FORMAT=${options.rowFormat}`,
       ';'
     ]);
+    // "CREATE TABLE IF NOT EXISTS `users` (`userId` INTEGER NOT NULL auto_increment , `userName` VARCHAR(255) NOT NULL, `password` VARCHAR(255) NOT NULL, `createdAt` DATETIME NOT NULL, `updatedAt` DATETIME NOT NULL, PRIMARY KEY (`userId`)) ENGINE=InnoDB;"
+    return res;
   }
 
   describeTableQuery(tableName, schema, schemaDelimiter) {
@@ -360,6 +368,12 @@ class MySQLQueryGenerator extends AbstractQueryGenerator {
     ]);
   }
 
+  /**
+   * 将描述列的对象转化为符合数据库规范的字符串描述
+   * @param attribute：描述列的对象
+   * @param options
+   * @returns {string}：符合数据库规范的字符串描述
+   */
   attributeToSQL(attribute, options) {
     if (!_.isPlainObject(attribute)) {
       attribute = {
@@ -431,7 +445,7 @@ class MySQLQueryGenerator extends AbstractQueryGenerator {
 
     return template;
   }
-
+  // 将列名和列的数据库描述形成一个映射对象
   attributesToSQL(attributes, options) {
     const result = {};
 

@@ -23,8 +23,8 @@ const postgresReservedWords = 'all,analyse,analyze,and,any,array,as,asc,asymmetr
 
 /**
  *
- * @param {string}  dialect         Dialect name
- * @param {string}  identifier      Identifier to quote
+ * @param {string}  dialect         Dialect name  不同数据库的名称是不一样
+ * @param {string}  identifier      Identifier to quote  标识符
  * @param {object}  [options]
  * @param {boolean} [options.force=false]
  * @param {boolean} [options.quoteIdentifiers=true]
@@ -44,6 +44,7 @@ function quoteIdentifier(dialect, identifier, options) {
     case 'sqlite':
     case 'mariadb':
     case 'mysql':
+      // removeTicks：删除字符串中特定字符
       return Utils.addTicks(Utils.removeTicks(identifier, '`'), '`');
 
     case 'postgres':

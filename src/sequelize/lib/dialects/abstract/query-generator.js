@@ -78,10 +78,21 @@ class QueryGenerator {
     return `DESCRIBE ${table};`;
   }
 
+  /**
+   * 根据table名称删除数据库中的表
+   * @param tableName：表格名称
+   * @returns {string}
+   */
   dropTableQuery(tableName) {
     return `DROP TABLE IF EXISTS ${this.quoteTable(tableName)};`;
   }
 
+  /**
+   * 更新表名
+   * @param before：原始表名
+   * @param after：新表名
+   * @returns {string}
+   */
   renameTableQuery(before, after) {
     return `ALTER TABLE ${this.quoteTable(before)} RENAME TO ${this.quoteTable(after)};`;
   }
@@ -89,7 +100,7 @@ class QueryGenerator {
   /**
    * Returns an insert into command
    *
-   * @param {string} table
+   * @param {string} table：表格名称
    * @param {object} valueHash       attribute value pairs
    * @param {object} modelAttributes
    * @param {object} [options]
@@ -888,10 +899,12 @@ class QueryGenerator {
    * @returns {string}
    */
   quoteIdentifier(identifier, force) {
-    return QuoteHelper.quoteIdentifier(this.dialect, identifier, {
+    // quoteIdentifier的第三个参数是专门提供给postgres数据库的
+    let res = QuoteHelper.quoteIdentifier(this.dialect, identifier, {
       force,
       quoteIdentifiers: this.options.quoteIdentifiers
     });
+    return res;
   }
 
   quoteIdentifiers(identifiers) {

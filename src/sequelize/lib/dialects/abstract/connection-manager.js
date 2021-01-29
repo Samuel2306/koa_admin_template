@@ -269,6 +269,7 @@ class ConnectionManager {
   async getConnection(options) {
     options = options || {};
 
+    // 当没有设置数据库版本时，会发起一次查询获取数据库版本
     if (this.sequelize.options.databaseVersion === 0) {
       if (!this.versionPromise) {
         this.versionPromise = (async () => {

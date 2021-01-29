@@ -1329,13 +1329,15 @@ class Model {
     const attributes = this.tableAttributes;
     const rawAttributes = this.fieldRawAttributesMap;
 
+    // 触发beforeSync的钩子
     if (options.hooks) {
       await this.runHooks('beforeSync', options);
     }
+    // 如果options.force为真，则先会删除原来的表格，意味着原来的数据也会丢失，所以要谨慎配置
     if (options.force) {
       await this.drop(options);
     }
-
+    // 获取table的名称
     const tableName = this.getTableName(options);
 
     await this.queryInterface.createTable(tableName, attributes, options, this);
@@ -1417,6 +1419,7 @@ class Model {
 
   /**
    * Drop the table represented by this Model
+   * 删除这个Model对应的表格
    *
    * @param {object}   [options] drop options
    * @param {boolean}  [options.cascade=false]   Also drop all objects depending on this table, such as views. Only works in postgres

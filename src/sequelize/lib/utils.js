@@ -339,12 +339,24 @@ exports.now = now;
 const TICK_CHAR = '`';
 exports.TICK_CHAR = TICK_CHAR;
 
+/**
+ * 先删除字符串中的特定字符，再在整个字符串的前后加上该特定字符
+ * @param s
+ * @param tickChar
+ * @returns {*}
+ */
 function addTicks(s, tickChar) {
   tickChar = tickChar || TICK_CHAR;
   return tickChar + removeTicks(s, tickChar) + tickChar;
 }
 exports.addTicks = addTicks;
 
+/**
+ * 删除字符串中特定字符
+ * @param s：源字符串
+ * @param tickChar：需要被替换的字符
+ * @returns {void | string | never}
+ */
 function removeTicks(s, tickChar) {
   tickChar = tickChar || TICK_CHAR;
   return s.replace(new RegExp(tickChar, 'g'), '');

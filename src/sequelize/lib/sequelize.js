@@ -873,7 +873,7 @@ class Sequelize {
    * @returns {Promise}
    */
   async authenticate(options) {
-    debugger
+
     options = {
       raw: true,
       plain: true,

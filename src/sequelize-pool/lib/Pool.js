@@ -72,9 +72,10 @@ class Pool {
         this._count = 0;
         this._draining = false;
         this._pendingAcquires = [];
-        this._inUseObjects = [];
-        this._availableObjects = [];
+        this._inUseObjects = [];  // 使用中的连接结合，接连使用完以后如果符合条件会被重新推入到_availableObjects中，最为可用的连接
+        this._availableObjects = []; // 可用连接池，供后续请求使用
         this._removeIdleScheduled = false;
+        // this._ensureMinimum(); 并不会一开始就创建最小数目的连接
     }
     get size() {
         return this._count;
@@ -183,6 +184,7 @@ class Pool {
         this._factory
             .create()
             .then((resource) => {
+
                 const deferred = this._pendingAcquires.shift();
                 if (deferred) {
                     this._addResourceToInUseObjects(resource, 0);
@@ -201,8 +203,11 @@ class Pool {
                     deferred.reject(error);
                 }
                 process.nextTick(() => {
-                    this._dispense();
+                    this._dispense(); // 在创建连接失败以后要重新调用_dispense方法，去检查是否有未处理的请求，有的话做相应处理
                 });
+            })
+            .finally(() => {
+                console.log(this._availableObjects.length)
             });
     }
 
@@ -238,7 +243,6 @@ class Pool {
     }
     // 确保可用连接数不会少于设置的最小连接数
     _ensureMinimum() {
-        debugger
         let i, diff;
         if (!this._draining && this.size < this.minSize) {
             diff = this.minSize - this.size;
@@ -320,14 +324,16 @@ class Pool {
                 yield this._factory.destroy(resource);
             } finally {
                 // 确保连接数不会小于设置的最小连接数
-                this._ensureMinimum();
+                this._ensureMinimum();  // 确保连接数不会小于设置的最小连接数
             }
         });
     }
+    // 当要关闭连接池时，会调用该方法
     drain() {
         this._log('draining', 'info');
         this._draining = true;
         const check = (callback) => {
+            // 确保所有的请求都被处理完才会去真正关闭连接池
             if (this._pendingAcquires.length > 0) {
                 this._dispense();
                 setTimeout(() => {
@@ -335,6 +341,7 @@ class Pool {
                 }, 100);
                 return;
             }
+            // this._availableObjects.length !== this._count说明还有链接在使用中，要等_inUseObjects里面的所有链接使用完回到_availableObjects中才会去销毁整个连接池
             if (this._availableObjects.length !== this._count) {
                 setTimeout(() => {
                     check(callback);

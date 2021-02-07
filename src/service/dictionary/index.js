@@ -126,11 +126,11 @@ class DictionaryService {
       raw: true,
       model: Dictionary,
       as: 'children',  // 定义属性别名
+      where: dictCondition,
     } : {
       raw: true,
       model: Dictionary,
       as: 'children',  // 定义属性别名
-      where: dictCondition,
     };
 
     const conditions = {

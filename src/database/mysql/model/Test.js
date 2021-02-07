@@ -3,7 +3,7 @@ const {
   DataTypes,
 } = require('sequelize');
 
-const Ship = sequelize.define('ship', { name: DataTypes.STRING }, { timestamps: false });
+/*const Ship = sequelize.define('ship', { name: DataTypes.STRING }, { timestamps: false });
 const Captain = sequelize.define('captain', {
   name: { type: DataTypes.STRING, unique: true}
 }, { timestamps: false });
@@ -15,10 +15,10 @@ Captain.sync({
 });
 Ship.sync({
   force: false,
-});
+});*/
 
 module.exports = {
-  Ship,
-  Captain,
+  /*Ship,
+  Captain,*/
 };
 

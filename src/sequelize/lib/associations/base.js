@@ -3,6 +3,7 @@
 const { AssociationError } = require('../errors');
 
 /**
+ * 根据belongsTo / hasOne / hasMany / belongsToMany关联关系创建关联查询的功能类
  * Creating associations in sequelize is done by calling one of the belongsTo / hasOne / hasMany / belongsToMany functions on a model (the source), and providing another model as the first argument to the function (the target).
  *
  * * hasOne - adds a foreign key to the target and singular association mixins to the source.
@@ -84,17 +85,17 @@ class Association {
     /**
      * @type {Model}
      */
-    this.source = source;
+    this.source = source;  // 源Model
 
     /**
      * @type {Model}
      */
-    this.target = target;
+    this.target = target; // 目标Model
 
     this.options = options;
     this.scope = options.scope;
-    this.isSelfAssociation = this.source === this.target;
-    this.as = options.as;
+    this.isSelfAssociation = this.source === this.target; // 是不是自关联
+    this.as = options.as;  // 被关联模型的数据的别名
 
     /**
      * The type of the association. One of `HasMany`, `BelongsTo`, `HasOne`, `BelongsToMany`
@@ -103,6 +104,7 @@ class Association {
      */
     this.associationType = '';
 
+    // 不同关联的别名必须不同
     if (source.hasAlias(options.as)) {
       throw new AssociationError(`You have used the alias ${options.as} in two separate associations. ` +
       'Aliased associations must have unique aliases.'

@@ -30,6 +30,10 @@ const createWebSocketServer = function (port = defaultPort) {
      */
     ws.on('message', function(msg){
       console.log(msg);
+      // 实现消息广播，但是不发给当前消息的来源客户端
+      wss.clients.forEach((client) => {
+
+      })
     });
 
     ws.send("Message from server");

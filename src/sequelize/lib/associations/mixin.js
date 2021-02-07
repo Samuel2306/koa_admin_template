@@ -1,6 +1,7 @@
 'use strict';
 
 const _ = require('lodash');
+// HasOne, HasMany, BelongsToMany, BelongsTo都是继承自Association类的子类
 const HasOne = require('./has-one');
 const HasMany = require('./has-many');
 const BelongsToMany = require('./belongs-to-many');
@@ -32,6 +33,7 @@ const Mixin = {
 
     // the id is in the foreign table or in a connecting table
     const association = new HasMany(source, target, options);
+    // 将与source相关的关联保存到source的associations属性中
     source.associations[association.associationAccessor] = association;
 
     association._injectAttributes();
@@ -73,14 +75,32 @@ const Mixin = {
 
     return association;
   },
-
+  /**
+   * 获取Model相关的association
+   * @param target：Model
+   * @returns {any[]}
+   */
   getAssociations(target) {
-    return Object.values(this.associations).filter(association => association.target.name === target.name);
+    let associations = Object.values(this.associations);
+    let res = associations.filter((association) => {
+      return association.target.name === target.name
+    });
+    return res;
   },
-
+  /**
+   * 根据别名获取Model的某一个association
+   * @param target： Model
+   * @param alias：别名
+   * @returns {T | null}
+   */
   getAssociationForAlias(target, alias) {
     // Two associations cannot have the same alias, so we can use find instead of filter
-    return this.getAssociations(target).find(association => association.verifyAssociationAlias(alias)) || null;
+    let associations = this.getAssociations(target);
+    associations = associations.find((association) => {
+      let res = association.verifyAssociationAlias(alias) || null
+      return res;
+    });
+    return associations;
   }
 };
 

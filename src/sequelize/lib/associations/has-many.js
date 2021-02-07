@@ -61,7 +61,7 @@ class HasMany extends Association {
     } else if (this.options.foreignKey) {
       this.foreignKey = this.options.foreignKey;
     }
-
+    // 当用户没有定义外键名称时，会根据source和他的主键生成一个外键名称
     if (!this.foreignKey) {
       this.foreignKey = Utils.camelize(
         [
@@ -70,7 +70,7 @@ class HasMany extends Association {
         ].join('_')
       );
     }
-
+    // 当目标Model里面已经定义了与foreignKey相同的属性，把外键的名称保存到identifierField，foreignKeyField属性中
     if (this.target.rawAttributes[this.foreignKey]) {
       this.identifierField = this.target.rawAttributes[this.foreignKey].field || this.foreignKey;
       this.foreignKeyField = this.target.rawAttributes[this.foreignKey].field || this.foreignKey;
@@ -95,7 +95,7 @@ class HasMany extends Association {
     const singular = _.upperFirst(this.options.name.singular);
 
     this.associationAccessor = this.as;
-    this.accessors = {
+    this.accessors = {  // 最后会挂载到source上，作为操作与方法名的映射关系
       get: `get${plural}`,
       set: `set${plural}`,
       addMultiple: `add${plural}`,
@@ -109,8 +109,7 @@ class HasMany extends Association {
     };
   }
 
-  // the id is in the target table
-  // or in an extra table which connects two tables
+  // 为目标Model注入或者标准化外键信息
   _injectAttributes() {
     const newAttributes = {
       [this.foreignKey]: {
@@ -143,7 +142,7 @@ class HasMany extends Association {
 
     return this;
   }
-
+  // 为source Model混入一些获取关联Model数据的方法
   mixin(obj) {
     const methods = ['get', 'count', 'hasSingle', 'hasAll', 'set', 'add', 'addMultiple', 'remove', 'removeMultiple', 'create'];
     const aliases = {

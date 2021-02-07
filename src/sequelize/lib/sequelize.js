@@ -498,7 +498,8 @@ class Sequelize {
    *
    * @param {string}          sql
    * @param {object}          [options={}] Query options.
-   * @param {boolean}         [options.raw] If true, sequelize will not try to format the results of the query, or build an instance of a model from the result
+   * 有时，你可能希望得到一个仅需显示而无需处理的庞大数据集。对于所选择的每一行，Sequelize创建一个实例，该实例具有用于更新、删除、获取关联等功能。如果数据量较大，则可能需要一些时间。如果只需要原始数据并且不想更新任何内容，可以像下面这样直接获取原始数据。
+   * @param {boolean}         [options.raw] 设置为true，获取原始数据
    * @param {Transaction}     [options.transaction=null] The transaction that the query should be executed under
    * @param {QueryTypes}      [options.type='RAW'] The type of query you are executing. The query type affects how results are formatted before they are passed back. The type is a string, but `Sequelize.QueryTypes` is provided as convenience shortcuts.
    * @param {boolean}         [options.nest=false] If true, transforms objects with `.` separated property names into nested objects using [dottie.js](https://github.com/mickhansen/dottie.js). For example { 'user.username': 'john' } becomes { user: { username: 'john' }}. When `nest` is true, the query type is assumed to be `'SELECT'`, unless otherwise specified

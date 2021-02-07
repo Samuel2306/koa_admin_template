@@ -315,6 +315,12 @@ class Model {
     }
   }
 
+  /**
+   * 标准化查询对象的includes属性
+   * @param options
+   * @param self：Model类或者子类
+   * @private
+   */
   static _conformIncludes(options, self) {
     if (!options.include) return;
 
@@ -329,7 +335,7 @@ class Model {
     // convert all included elements to { model: Model } form
     options.include = options.include.map(include => this._conformInclude(include, self));
   }
-
+  // 当include是字符串时，可以通过associations对象映射到真正的include对象
   static _transformStringAssociation(include, self) {
     if (self && typeof include === 'string') {
       if (!Object.prototype.hasOwnProperty.call(self.associations, include)) {
@@ -340,14 +346,24 @@ class Model {
     return include;
   }
 
+  /**
+   * 标准化每一个include对象
+   * @param include
+   * @param self：Model类或者子类
+   * @returns {*}
+   * @private
+   */
   static _conformInclude(include, self) {
     if (include) {
       let model;
-
+      // 如果定义了_pseudo属性，则不做任何处理
       if (include._pseudo) return include;
 
       include = this._transformStringAssociation(include, self);
 
+      /**
+       * include是一个Association类型的对象
+       */
       if (include instanceof Association) {
         if (self && include.target.name === self.name) {
           model = include.source;
@@ -358,10 +374,15 @@ class Model {
         return { model, association: include, as: include.as };
       }
 
+      /**
+       * include是继承自Model类的模型类实例
+       */
       if (include.prototype && include.prototype instanceof Model) {
         return { model: include };
       }
-
+      /**
+       * include是一个一般的对象
+       */
       if (_.isPlainObject(include)) {
         if (include.association) {
           include.association = this._transformStringAssociation(include.association, self);
@@ -378,12 +399,20 @@ class Model {
           this._conformIncludes(include, model);
           return include;
         }
-
+        // 如果include里面关联了其他model，需要使用递归处理关联Model关联的Model
         if (include.model) {
           this._conformIncludes(include, include.model);
           return include;
         }
-
+        /**
+         * 要包含所有属性，可以将all: true做为单个对象传入
+         * User.findAll({
+         *    include: [
+         *      { all: true },
+         *      {...},
+         *    ]
+         * });
+         */
         if (include.all) {
           this._conformIncludes(include);
           return include;
@@ -496,10 +525,18 @@ class Model {
     })(this, includes);
   }
 
+  /**
+   * 验证所有的include对象
+   * @param options
+   * @param tableNames
+   * @returns {*}
+   * @private
+   */
   static _validateIncludedElements(options, tableNames) {
+    debugger;
     if (!options.model) options.model = this;
 
-    tableNames = tableNames || {};
+    tableNames = tableNames || {}; // 用来保存所有相关的表格信息
     options.includeNames = [];
     options.includeMap = {};
 
@@ -507,6 +544,7 @@ class Model {
     options.hasSingleAssociation = false;
     options.hasMultiAssociation = false;
 
+    // 如果不存在parent属性，说明当前options是顶层
     if (!options.parent) {
       options.topModel = options.model;
       options.topLimit = options.limit;
@@ -514,7 +552,7 @@ class Model {
 
     options.include = options.include.map(include => {
       include = this._conformInclude(include);
-      include.parent = options;
+      include.parent = options; // 将options对象作为每一个include对象的parent
       include.topLimit = options.topLimit;
 
       this._validateIncludedElement.call(options.model, include, tableNames, options);
@@ -586,6 +624,14 @@ class Model {
     return options;
   }
 
+  /**
+   * 验证单个include对象
+   * @param include
+   * @param tableNames
+   * @param options
+   * @returns {*}
+   * @private
+   */
   static _validateIncludedElement(include, tableNames, options) {
     tableNames[include.model.getTableName()] = true;
 
@@ -714,6 +760,13 @@ class Model {
     return include;
   }
 
+  /**
+   * 根据别名获取Model的某个association
+   * @param targetModel： 目标Model
+   * @param targetAlias：别名
+   * @returns {*}
+   * @private
+   */
   static _getIncludedAssociation(targetModel, targetAlias) {
     const associations = this.getAssociations(targetModel);
     let association = null;
@@ -791,11 +844,11 @@ class Model {
 
   static _uniqIncludes(options) {
     if (!options.include) return;
-
-    options.include = _(options.include)
-      .groupBy(include => `${include.model && include.model.name}-${include.as}`)
-      .map(includes => this._assignOptions(...includes))
-      .value();
+    // _(options.include): // 创建一个lodash对象
+    let res = _(options.include).groupBy(include => `${include.model && include.model.name}-${include.as}`);
+    res = res.map(includes => this._assignOptions(...includes));
+    res = res.value();
+    options.include = res;
   }
 
   static _baseMerge(...args) {
@@ -833,13 +886,16 @@ class Model {
   }
 
   static _assignOptions(...args) {
-    return this._baseMerge(...args, this._mergeFunction);
+    let res = this._baseMerge(...args, this._mergeFunction);
+    return res;
   }
 
   static _defaultsOptions(target, opts) {
-    return this._baseMerge(target, opts, (srcValue, objValue, key) => {
-      return this._mergeFunction(objValue, srcValue, key);
+    let res = this._baseMerge(target, opts, (srcValue, objValue, key) => {
+      let merged = this._mergeFunction(objValue, srcValue, key);
+      return merged;
     });
+    return res;
   }
 
   /**
@@ -1092,7 +1148,7 @@ class Model {
     this.refreshAttributes();
     this._findAutoIncrementAttribute();
 
-    this._scope = this.options.defaultScope;
+    this._scope = this.options.defaultScope; // 默认作用域
     this._scopeNames = ['defaultScope'];
 
     this.sequelize.modelManager.addModel(this);
@@ -1715,7 +1771,7 @@ class Model {
    * @param  {boolean}                                                   [options.benchmark=false] Pass query execution time in milliseconds as second argument to logging function (options.logging).
    * @param  {object}                                                    [options.having] Having options
    * @param  {string}                                                    [options.searchPath=DEFAULT] An optional parameter to specify the schema search_path (Postgres only)
-   * @param  {boolean|Error}                                             [options.rejectOnEmpty=false] Throws an error when no records found
+   * @param  {boolean|Error}                                             [options.rejectOnEmpty=false] 如果没有搜到匹配条件的数据，就返回一个错误
    *
    * @see
    * {@link Sequelize#query}
@@ -1732,7 +1788,7 @@ class Model {
         throw new sequelizeErrors.QueryError('The attributes option must be an array of column names or an object');
       }
     }
-
+    // 检查options中是否包含非法属性
     this.warnOnInvalidOptions(options, Object.keys(this.rawAttributes));
 
     const tableNames = {};
@@ -1813,12 +1869,19 @@ class Model {
     return await Model._findSeparate(results, options);
   }
 
+  /**
+   * 主要是帮助用户检查查询格式：当要根据某个属性进行查询要使用where，而不是直接在options中使用该属性
+   * @param options
+   * @param validColumnNames
+   */
   static warnOnInvalidOptions(options, validColumnNames) {
     if (!_.isPlainObject(options)) {
       return;
     }
-
+    // unrecognizedOptions用来表示options中是否包含sequelize中无法识别的查询属性
     const unrecognizedOptions = Object.keys(options).filter(k => !validQueryKeywords.has(k));
+    // _.intersection：返回值(Array): 返回一个包含所有传入数组交集元素的新数组。
+    // _.intersection([2, 1], [4, 2], [1, 2]); => [2]
     const unexpectedModelAttributes = _.intersection(unrecognizedOptions, validColumnNames);
     if (!options.where && unexpectedModelAttributes.length > 0) {
       logger.warn(`Model attributes (${unexpectedModelAttributes.join(', ')}) passed into finder method options of model ${this.name}, but the options.where object is empty. Did you forget to use options.where?`);
@@ -1984,11 +2047,14 @@ class Model {
 
     // We need to preserve attributes here as the `injectScope` call would inject non aggregate columns.
     const prevAttributes = options.attributes;
+    // 注入用户定义的scope
     this._injectScope(options);
     options.attributes = prevAttributes;
+    // 处理用户传入的include
     this._conformIncludes(options, this);
 
     if (options.include) {
+      debugger
       this._expandIncludeAll(options);
       this._validateIncludedElements(options);
     }
@@ -2043,8 +2109,8 @@ class Model {
    * @param {object}        [options.where] A hash of search attributes.
    * @param {object}        [options.include] Include options. See `find` for details
    * @param {boolean}       [options.paranoid=true] Set `true` to count only non-deleted records. Can be used on models with `paranoid` enabled
-   * @param {boolean}       [options.distinct] Apply COUNT(DISTINCT(col)) on primary key or on options.col.
-   * @param {string}        [options.col] Column on which COUNT() should be applied
+   * @param {boolean}       [options.distinct] Apply COUNT(DISTINCT(col)) on primary key or on options.col. 当计数列上的属性值相同时，是否进行重复计数
+   * @param {string}        [options.col] Column on which COUNT() should be applied 定义根据哪一列来进行计数
    * @param {Array}         [options.attributes] Used in conjunction with `group`
    * @param {Array}         [options.group] For creating complex counts. Will return multiple rows as needed.
    * @param {Transaction}   [options.transaction] Transaction to run query under
@@ -2057,7 +2123,7 @@ class Model {
   static async count(options) {
     options = Utils.cloneDeep(options);
     options = _.defaults(options, { hooks: true });
-    options.raw = true;
+    options.raw = true; // 计数的时候设置为true，这样就会载入原始数据，因为不需要对数据有增删改查，效率比较高
     if (options.hooks) {
       await this.runHooks('beforeCount', options);
     }
@@ -2065,11 +2131,13 @@ class Model {
     if (options.include) {
       col = `${this.name}.${options.col || this.primaryKeyField}`;
     }
+    // 当定义了distinct属性，且options里面并没有定义 col 和 include 属性，默认使用定义的主键名称
     if (options.distinct && col === '*') {
       col = this.primaryKeyField;
     }
+    // group属性：是否按某个属性进行分组
     options.plain = !options.group;
-    options.dataType = new DataTypes.INTEGER();
+    options.dataType = new DataTypes.INTEGER();  // 要求返回一个整数类型的结果
     options.includeIgnoreAttributes = false;
 
     // No limit, offset or order for the options max be given to count()
@@ -2126,9 +2194,9 @@ class Model {
       countOptions.attributes = undefined;
     }
 
-    const [count, rows] = await Promise.all([
-      this.count(countOptions),
-      this.findAll(options)
+    const [count] = await Promise.all([
+      this.count(countOptions), // 计数
+      this.findAll(options), // 查询所有符合条件的数据
     ]);
 
     return {

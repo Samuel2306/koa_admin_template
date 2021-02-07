@@ -1,7 +1,7 @@
 const KoaRouter = require('koa-router');
 const {
-  Ship,
-  Captain,
+  // Ship,
+  // Captain,
 } = require('../../database/mysql/model/Test.js');
 
 const {

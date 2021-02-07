@@ -2,6 +2,7 @@ const { Op } = require("sequelize");
 const {
   DictionaryCategory,
   Dictionary,
+  Ship,
 } = require('../../database/mysql/model');
 
 class DictionaryService {
@@ -130,16 +131,25 @@ class DictionaryService {
       order: [
         ['createdAt', 'DESC'],
       ],
-      include: [{
-        // attributes: [ 'dictCategoryId', 'id', 'dictLabel', 'dictCode', 'isActive' ],
-        model: Dictionary,
-        as: 'children',  // 定义属性别名
-        where: {
-          isActive: {
-            [Op.or]: isChildActive == null ? [] : [isChildActive],
+      include: [
+        {
+          // attributes: [ 'dictCategoryId', 'id', 'dictLabel', 'dictCode', 'isActive' ],
+          attributes: [ 'dictLabel', 'dictCode' ],
+          model: Dictionary,
+          as: 'children',  // 定义属性别名
+          where: {
+            isActive: {
+              [Op.or]: isChildActive == null ? [] : [isChildActive],
+            },
           },
-        }
-      }],
+          include: [
+            {
+              model: Ship,
+              as: 'ships',
+            }
+          ]
+        },
+      ],
       where: conditions,
     });
     return category;

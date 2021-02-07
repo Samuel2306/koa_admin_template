@@ -206,7 +206,8 @@ class DictionaryController {
         categoryCodes,
         pageSize: 10000,
         pageNum: 1,
-        isChildActive: true
+        isActive: true,
+        isChildActive: true,
       });
       ctx.body = new SuccessResult({
         msg: 'success',

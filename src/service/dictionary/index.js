@@ -114,6 +114,25 @@ class DictionaryService {
    * @returns {Promise<Model[] | Array<Model>>}
    */
   static async queryDictCategory({pageSize, pageNum, categoryCodes, isActive, isChildActive}){
+    let dictCondition;
+    if(isChildActive){
+      dictCondition = {
+        isActive: {
+          [Op.or]: [isChildActive],
+        },
+      }
+    };
+    const dictInclude = dictCondition ? {
+      raw: true,
+      model: Dictionary,
+      as: 'children',  // 定义属性别名
+    } : {
+      raw: true,
+      model: Dictionary,
+      as: 'children',  // 定义属性别名
+      where: dictCondition,
+    };
+
     const conditions = {
       categoryCode: {
         [Op.or]: categoryCodes || [],
@@ -122,6 +141,7 @@ class DictionaryService {
         [Op.or]: isActive == null ? [] : [isActive],
       },
     };
+
     const offset = parseInt(pageSize * (pageNum - 1));
     const limit = parseInt(pageSize);
     let category = await DictionaryCategory.findAndCountAll({
@@ -132,17 +152,7 @@ class DictionaryService {
         ['createdAt', 'DESC'],
       ],
       include: [
-        {
-          // attributes: [ 'dictCategoryId', 'id', 'dictLabel', 'dictCode', 'isActive' ],
-          attributes: [ 'dictLabel', 'dictCode' ],
-          model: Dictionary,
-          as: 'children',  // 定义属性别名
-          where: {
-            isActive: {
-              [Op.or]: isChildActive == null ? [] : [isChildActive],
-            },
-          }
-        },
+        dictInclude,
       ],
       where: conditions,
     });

@@ -533,7 +533,6 @@ class Model {
    * @private
    */
   static _validateIncludedElements(options, tableNames) {
-    debugger;
     if (!options.model) options.model = this;
 
     tableNames = tableNames || {}; // 用来保存所有相关的表格信息
@@ -2054,7 +2053,6 @@ class Model {
     this._conformIncludes(options, this);
 
     if (options.include) {
-      debugger
       this._expandIncludeAll(options);
       this._validateIncludedElements(options);
     }
@@ -2194,7 +2192,7 @@ class Model {
       countOptions.attributes = undefined;
     }
 
-    const [count] = await Promise.all([
+    const [count, rows] = await Promise.all([
       this.count(countOptions), // 计数
       this.findAll(options), // 查询所有符合条件的数据
     ]);

@@ -9,10 +9,10 @@ DictionaryCategory.hasMany(Dictionary, {
 });
 Dictionary.belongsTo(DictionaryCategory);
 
-Dictionary.hasMany(Ship, {
+/*Dictionary.hasMany(Ship, {
   as: 'ships'
 });
-Ship.belongsTo(Dictionary);
+Ship.belongsTo(Dictionary);*/
 
 
 
@@ -22,19 +22,19 @@ Ship.belongsTo(Dictionary);
  * 2、模型定义统一使用define方式
  */
 
-Ship.sync({
+/*Ship.sync({
   force: true,
-});
+});*/
 
 
 // 模型同步
 Dictionary.sync({
-  force: true
+  force: false
 });
 
 // 模型同步
 DictionaryCategory.sync({
-  force: true
+  force: false
 });
 
 

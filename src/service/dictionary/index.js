@@ -141,13 +141,7 @@ class DictionaryService {
             isActive: {
               [Op.or]: isChildActive == null ? [] : [isChildActive],
             },
-          },
-          include: [
-            {
-              model: Ship,
-              as: 'ships',
-            }
-          ]
+          }
         },
       ],
       where: conditions,

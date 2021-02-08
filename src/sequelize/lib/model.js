@@ -75,7 +75,7 @@ class Model {
 
   /**
    * Builds a new model instance.
-   *
+   * 构建一个新的实例
    * @param {object}  [values={}] an object of key value pairs
    * @param {object}  [options] instance construction options
    * @param {boolean} [options.raw=false] If set to true, values will ignore field and virtual setters.
@@ -2251,7 +2251,7 @@ class Model {
   /**
    * Builds a new model instance.
    *
-   * @param {object|Array} values An object of key value pairs or an array of such. If an array, the function will return an array of instances.
+   * @param {object|Array} 键值对或者包含多个键值对的数组. 如果是数组，就返回多个实例.
    * @param {object}  [options] Instance build options
    * @param {boolean} [options.raw=false] If set to true, values will ignore field and virtual setters.
    * @param {boolean} [options.isNewRecord=true] Is this new record
@@ -2263,13 +2263,14 @@ class Model {
     if (Array.isArray(values)) {
       return this.bulkBuild(values, options);
     }
-
+    // 调用构造方法
     return new this(values, options);
   }
 
   static bulkBuild(valueSets, options) {
     options = { isNewRecord: true, ...options };
 
+    // includeValidated为为了说明include的内容已经验证，不需要重复验证
     if (!options.includeValidated) {
       this._conformIncludes(options, this);
       if (options.include) {
@@ -2277,17 +2278,19 @@ class Model {
         this._validateIncludedElements(options);
       }
     }
-
+    // 保证options.attributes内部的元素不是数组
     if (options.attributes) {
-      options.attributes = options.attributes.map(attribute => Array.isArray(attribute) ? attribute[1] : attribute);
+      options.attributes = options.attributes.map((attribute) => {
+        return Array.isArray(attribute) ? attribute[1] : attribute
+      });
     }
-
+    // 返回包含多个实例的数组
     return valueSets.map(values => this.build(values, options));
   }
 
   /**
    * Builds a new model instance and calls save on it.
-   *
+   * 创建一个实例对象并将其保存到数据库
    * @see
    * {@link Model.build}
    * @see

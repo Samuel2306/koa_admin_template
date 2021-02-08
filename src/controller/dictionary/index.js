@@ -9,6 +9,15 @@ const {
   getRequestBody,
 } = require('../../util');
 
+function filterIsNotActiveDict(categories){
+  return categories.map((item) => {
+    item.dataValues.children = item.dataValues.children.filter((dict) => {
+      return !!dict.dataValues.isActive
+    })
+    return item;
+  })
+}
+
 class DictionaryController {
   static async createDictCategory(ctx){
     const {
@@ -207,11 +216,11 @@ class DictionaryController {
         pageSize: 10000,
         pageNum: 1,
         isActive: true,
-        isChildActive: true,
+        // isChildActive: true,
       });
       ctx.body = new SuccessResult({
         msg: 'success',
-        data: categories.rows,
+        data: filterIsNotActiveDict(categories.rows),
       });
     }catch(e){
       ctx.body = new ErrorResult({

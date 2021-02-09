@@ -289,7 +289,11 @@ class Pool {
         }
         const wrappedResource = this._inUseObjects[index];
         wrappedResource.useCount += 1;
-        // 当wrappedResource的使用次数超过每个连接可用的最大次数时，需要销毁该连接并重新创建连接
+        /**
+         * 当wrappedResource的使用次数超过每个连接可用的最大次数时，需要销毁该连接并重新创建连接
+         * 为什么要这样？用户的访问存在高峰和低谷期，假设数据库那边做了动态扩展（通过DNS），在低谷期每个服务器都连接到一个由3个成员组成的读取副本集，可以在一个DNS名称后面访问，在高峰期会自动添加10台读取副本。如果不销毁连接，这个连接永远连接的是
+         * 原来的三个副本集，这样新加的副本集就闲置了
+         */
         if (wrappedResource.useCount >= this.maxUsesPerResource) {
             this._log(`release() destroying obj - useCount:${wrappedResource.useCount} maxUsesPerResource:${this.maxUsesPerResource}`, 'verbose');
             this.destroy(wrappedResource.resource);

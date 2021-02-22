@@ -121,7 +121,7 @@ class DictionaryService {
   }){
     const offset = parseInt(pageSize * (pageNum - 1));
     const limit = parseInt(pageSize);
-    let category = await DictionaryCategory.findAndCountAll({
+    let categories = await DictionaryCategory.findAndCountAll({
       distinct: true,  // 这个必须加，不然每一条Dictionary数据也会被计数
       offset: offset,
       limit: limit,
@@ -134,7 +134,21 @@ class DictionaryService {
         },
       },
     });
-    return category;
+
+    return categories;
+  }
+
+  // 根据用户传入的code列表返回字典列表，是给前端使用的接口
+  static async getDictionariesByCodes(categoryCodes){
+    let categories = await DictionaryCategory.scope('defaultScope', 'activated', 'activeDictionaries').findAll({
+      distinct: true,  // 这个必须加，不然每一条Dictionary数据也会被计数
+      where: {
+        categoryCode: {
+          [Op.or]: categoryCodes,
+        },
+      }
+    });
+    return categories
   }
 
 

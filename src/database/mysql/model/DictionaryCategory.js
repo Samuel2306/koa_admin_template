@@ -1,7 +1,9 @@
 const sequelize = require('../connection');
 const {
   DataTypes,
+  Op,
 } = require('sequelize');
+const Dictionary = require('./Dictionary');
 
 
 const DictionaryCategory = sequelize.define('dictCategory', {
@@ -42,6 +44,13 @@ const DictionaryCategory = sequelize.define('dictCategory', {
     ],
   },
   scopes: {
+    deleted: {
+      where: {
+        deletedAt: {
+          [Op.ne]: null,
+        },
+      }
+    },
     activated: {
       where: {
         isActive: true,
@@ -51,7 +60,19 @@ const DictionaryCategory = sequelize.define('dictCategory', {
       where: {
         isActive: false,
       }
-    }
+    },
+    activeDictionaries: {
+      include: [
+        {
+          model: Dictionary,
+          as: 'children',  // 定义属性别名
+          where: {
+            isActive: true
+          },
+          required: false,  // 使用left join，默认是使用inner join，这样就算dictCategory底下没有相应的Dictionary，也会被搜索出来
+        }
+      ]
+    },
   },
   paranoid: true,  // 实现逻辑删除
   /*getterMethods: {

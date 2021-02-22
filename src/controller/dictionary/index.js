@@ -217,18 +217,13 @@ class DictionaryController {
     } = getRequestBody(ctx);
     categoryCodes = categoryCodes && categoryCodes.trim() ? categoryCodes.trim().split(',') : [];
     try {
-      let categories = await DictionaryService.queryDictCategory({
-        categoryCodes,
-        pageSize: 10000,
-        pageNum: 1,
-        isActive: true,
-        // isChildActive: true,
-      });
+      let categories = await DictionaryService.getDictionariesByCodes(categoryCodes);
       ctx.body = new SuccessResult({
         msg: 'success',
-        data: filterIsNotActiveDict(categories.rows),
+        data: categories,
       });
     }catch(e){
+      console.log(e);
       ctx.body = new ErrorResult({
         code: 'air_0001',
         msg: '服务器错误',

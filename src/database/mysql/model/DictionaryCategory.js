@@ -36,6 +36,23 @@ const DictionaryCategory = sequelize.define('dictCategory', {
     defaultValue: 0,
   },
 }, {
+  defaultScope: {
+    order: [
+      ['createdAt', 'DESC'],
+    ],
+  },
+  scopes: {
+    activated: {
+      where: {
+        isActive: true,
+      }
+    },
+    unactivated: {
+      where: {
+        isActive: false,
+      }
+    }
+  },
   paranoid: true,  // 实现逻辑删除
   /*getterMethods: {
     categoryCode: () => {

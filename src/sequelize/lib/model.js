@@ -20,9 +20,7 @@ const Op = require('./operators');
 const { noDoubleNestedGroup } = require('./utils/deprecations');
 
 
-// This list will quickly become dated, but failing to maintain this list just means
-// we won't throw a warning when we should. At least most common cases will forever be covered
-// so we stop throwing erroneous warnings when we shouldn't.
+// 查询参数的合法属性列表
 const validQueryKeywords = new Set(['where', 'attributes', 'paranoid', 'include', 'order', 'limit', 'offset',
   'transaction', 'lock', 'raw', 'logging', 'benchmark', 'having', 'searchPath', 'rejectOnEmpty', 'plain',
   'scope', 'group', 'through', 'defaults', 'distinct', 'primary', 'exception', 'type', 'hooks', 'force',
@@ -1146,8 +1144,8 @@ class Model {
     this._addDefaultAttributes();
     this.refreshAttributes();
     this._findAutoIncrementAttribute();
-
-    this._scope = this.options.defaultScope; // 默认作用域
+    // 默认作用域
+    this._scope = this.options.defaultScope;
     this._scopeNames = ['defaultScope'];
 
     this.sequelize.modelManager.addModel(this);
@@ -1778,10 +1776,11 @@ class Model {
    * @returns {Promise<Array<Model>>}
    */
   static async findAll(options) {
+    debugger;
     if (options !== undefined && !_.isPlainObject(options)) {
       throw new sequelizeErrors.QueryError('The argument passed to findAll must be an options object, use findByPk if you wish to pass a single primary key value');
     }
-
+    // 保证attributes属性的值是个数组
     if (options !== undefined && options.attributes) {
       if (!Array.isArray(options.attributes) && !_.isPlainObject(options.attributes)) {
         throw new sequelizeErrors.QueryError('The attributes option must be an array of column names or an object');

@@ -185,7 +185,13 @@ class DictionaryController {
       });
       return;
     }
-    categoryCodes = categoryCodes ? categoryCodes.split(',') : [];
+    categoryCodes = categoryCodes && categoryCodes.trim() ? categoryCodes.trim().split(',') : [];
+    isActive = isActive && isActive.trim() ? isActive.trim().split(',') : [];
+    if(isActive.length){
+      isActive = isActive.map((item) => {
+        return item == 1;
+      });
+    }
     try {
       let category = await DictionaryService.queryDictCategory({pageSize, pageNum, categoryCodes, isActive});
       ctx.body = new SuccessResult({
@@ -209,7 +215,7 @@ class DictionaryController {
     let {
       categoryCodes,
     } = getRequestBody(ctx);
-    categoryCodes = categoryCodes ? categoryCodes.split(',') : [];
+    categoryCodes = categoryCodes && categoryCodes.trim() ? categoryCodes.trim().split(',') : [];
     try {
       let categories = await DictionaryService.queryDictCategory({
         categoryCodes,

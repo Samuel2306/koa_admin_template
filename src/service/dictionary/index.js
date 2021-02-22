@@ -113,48 +113,26 @@ class DictionaryService {
    * @param isActive
    * @returns {Promise<Model[] | Array<Model>>}
    */
-  static async queryDictCategory({pageSize, pageNum, categoryCodes, isActive, isChildActive}){
-    let dictCondition;
-    if(isChildActive){
-      dictCondition = {
-        isActive: {
-          [Op.or]: [isChildActive],
-        },
-      }
-    };
-    const dictInclude = dictCondition ? {
-      raw: true,
-      model: Dictionary,
-      as: 'children',  // 定义属性别名
-      where: dictCondition,
-    } : {
-      raw: true,
-      model: Dictionary,
-      as: 'children',  // 定义属性别名
-    };
-
-    const conditions = {
-      categoryCode: {
-        [Op.or]: categoryCodes || [],
-      },
-      isActive: {
-        [Op.or]: isActive == null ? [] : [isActive],
-      },
-    };
-
+  static async queryDictCategory({
+    pageSize,
+    pageNum,
+    categoryCodes,
+    isActive,
+  }){
     const offset = parseInt(pageSize * (pageNum - 1));
     const limit = parseInt(pageSize);
     let category = await DictionaryCategory.findAndCountAll({
       distinct: true,  // 这个必须加，不然每一条Dictionary数据也会被计数
       offset: offset,
       limit: limit,
-      order: [
-        ['createdAt', 'DESC'],
-      ],
-      include: [
-        dictInclude,
-      ],
-      where: conditions,
+      where: {
+        categoryCode: {
+          [Op.or]: categoryCodes,
+        },
+        isActive: {
+          [Op.or]: isActive,
+        },
+      },
     });
     return category;
   }
@@ -235,9 +213,6 @@ class DictionaryService {
       distinct: true,  // 这个必须加，不然每一条Dictionary数据也会被计数
       offset: offset,
       limit: limit,
-      order: [
-        ['createdAt', 'DESC'],
-      ],
       where: {
         dictCategoryId: dictCategoryId,
       },

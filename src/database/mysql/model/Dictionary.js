@@ -29,6 +29,23 @@ const Dictionary = sequelize.define('dictionary', {
   },
 }, {
   paranoid: true,  // 实现逻辑删除
+  defaultScope: {
+    order: [
+      ['createdAt', 'DESC'],
+    ],
+  },
+  scopes: {
+    activated: {
+      where: {
+        isActive: true,
+      }
+    },
+    unactivated: {
+      where: {
+        isActive: false,
+      }
+    }
+  },
 });
 
 

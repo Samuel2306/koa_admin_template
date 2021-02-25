@@ -133,6 +133,7 @@ class DictionaryService {
           [Op.or]: isActive,
         },
       },
+      paranoid: false,
     });
 
     return categories;
@@ -146,7 +147,8 @@ class DictionaryService {
         categoryCode: {
           [Op.or]: categoryCodes,
         },
-      }
+      },
+      // paranoid: false, 检索出被软删除的数据
     });
     return categories
   }

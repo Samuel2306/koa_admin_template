@@ -987,7 +987,7 @@ class Model {
    * @returns {Model}
    */
   static init(attributes, options = {}) {
-
+    // debugger
     // 必须传入数据库连接对象，也就是 Sequelize 实例
     if (!options.sequelize) {
       throw new Error('No Sequelize instance passed');
@@ -1070,7 +1070,7 @@ class Model {
         throw new Error(`Members of the validate option must be functions. Model: ${this.name}, error with validate member ${validatorType}`);
       }
     });
-
+    // _.mapValues(object, [iteratee=_.identity]) => 创建一个对象，这个对象的key与object对象相同，值是通过 iteratee 运行 object 中每个自身可枚举属性名字符串产生的
     this.rawAttributes = _.mapValues(attributes, (attribute, name) => {
       attribute = this.sequelize.normalizeAttribute(attribute);
 
@@ -1617,6 +1617,7 @@ class Model {
    * @returns {Model} A reference to the model, with the scope(s) applied. Calling scope again on the returned model will clear the previous scope.
    */
   static scope(option) {
+    // 创建一个当前model类的子类
     const self = class extends this {};
     let scope;
     let scopeName;
@@ -1625,25 +1626,26 @@ class Model {
 
     self._scope = {};
     self._scopeNames = [];
-    self.scoped = true;
+    self.scoped = true; // 作为这一系列的类的标识
 
     if (!option) {
       return self;
     }
-
+    // _.flatten(array)：减少一级array嵌套深度
+    // _.flatten([1, [2, [3, [4]], 5]]);  => [1, 2, [3, [4]], 5]
     const options = _.flatten(arguments);
 
     for (const option of options) {
       scope = null;
       scopeName = null;
 
-      if (_.isPlainObject(option)) {
+      if (_.isPlainObject(option)) {  // 可以在查询时临时定义一个scope，不一定非要在model初始化时定义
         if (option.method) {
-          if (Array.isArray(option.method) && !!self.options.scopes[option.method[0]]) {
+          if (Array.isArray(option.method) && !!self.options.scopes[option.method[0]]) {  // method第一个元素是方法名，后面的是传给函数的参数列表，这样就可以动态产生scope
             scopeName = option.method[0];
             scope = self.options.scopes[scopeName].apply(self, option.method.slice(1));
           }
-          else if (self.options.scopes[option.method]) {
+          else if (self.options.scopes[option.method]) { // 根据定义的方法名，去执行options.scopes中特定的返回scope对象的函数
             scopeName = option.method;
             scope = self.options.scopes[scopeName].apply(self);
           }
@@ -1653,16 +1655,16 @@ class Model {
       } else if (option === 'defaultScope' && _.isPlainObject(self.options.defaultScope)) {
         scope = self.options.defaultScope;
       } else {
+        // model初始化时，可以定义一些常用的scope，会保存在options.scopes属性中
         scopeName = option;
         scope = self.options.scopes[scopeName];
-        if (typeof scope === 'function') {
+        if (typeof scope === 'function') { // scope还可以定义成一个函数
           scope = scope();
         }
       }
-
       if (scope) {
         this._conformIncludes(scope, this);
-        // clone scope so it doesn't get modified
+        // 把所有scope的选项合并到self._scope属性中
         this._assignOptions(self._scope, Utils.cloneDeep(scope));
         self._scopeNames.push(scopeName ? scopeName : 'defaultScope');
       } else {
@@ -1807,6 +1809,7 @@ class Model {
       await this.runHooks('beforeFind', options);
     }
     this._conformIncludes(options, this);
+    // 根据options对象里面的attributes属性进行处理，返回需要返回的属性列表
     this._expandAttributes(options);
     this._expandIncludeAll(options);
 
@@ -1886,19 +1889,25 @@ class Model {
     }
   }
 
+  /**
+   * 注入虚拟属性，当用户在查询配置中配置了attributes属性，这时候返回的就不是所有的属性了，这时候就要针对init时定义的虚拟属性做特殊处理
+   * @param attributes：属性列表
+   * @returns {*}
+   * @private
+   */
   static _injectDependentVirtualAttributes(attributes) {
+    // this._hasVirtualAttributes：在init model的时候是否有定义type为DataTypes.VIRTUAL的属性
     if (!this._hasVirtualAttributes) return attributes;
     if (!attributes || !Array.isArray(attributes)) return attributes;
 
+    // 把虚拟属性加入到最后的结果中
     for (const attribute of attributes) {
-      if (
-        this._virtualAttributes.has(attribute)
-        && this.rawAttributes[attribute].type.fields
-      ) {
+      // 某个虚拟属性直接对应着表格中某个属性
+      if (this._virtualAttributes.has(attribute) && this.rawAttributes[attribute].type.fields) {
         attributes = attributes.concat(this.rawAttributes[attribute].type.fields);
       }
     }
-
+    // 去重
     attributes = _.uniq(attributes);
 
     return attributes;
@@ -3325,6 +3334,11 @@ class Model {
     return undefined;
   }
 
+  /**
+   * 标准化查询结果的属性列表，当options.attributes不为空时，说明用户需要的不是表格中所有的属性，所以要进行相应的处理
+   * @param options：查询的配置对象
+   * @private
+   */
   static _expandAttributes(options) {
     if (!_.isPlainObject(options.attributes)) {
       return;
@@ -3345,6 +3359,7 @@ class Model {
   // Inject _scope into options.
   static _injectScope(options) {
     const scope = Utils.cloneDeep(this._scope);
+    // 将所有查询方法（find，findAll）中定义的配置和使用scope方法定义的配置合并
     this._defaultsOptions(options, scope);
   }
 

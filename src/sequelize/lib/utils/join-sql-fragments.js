@@ -34,15 +34,15 @@ function singleSpaceJoinHelper(parts) {
   }, {
     skipNextLeadingSpace: true,
     result: ''
-  })
+  });
   return obj.result;
 }
 
 /**
  * Joins an array with a single space, auto trimming when needed.
- *
+ * 将数组元素用单个空格分隔，拼接成一个一个字符串，必要时会自动去空格
  * Certain elements do not get leading/trailing spaces.
- *
+ * 确保元素中不存在不必要的空格
  * @param {any[]} array The array to be joined. Falsy values are skipped. If an
  * element is another array, this function will be called recursively on that array.
  * Otherwise, if a non-string, non-falsy value is present, a TypeError will be thrown.
@@ -54,7 +54,7 @@ function singleSpaceJoinHelper(parts) {
 function joinSQLFragments(array) {
   if (array.length === 0) return '';
 
-  // Skip falsy fragments
+  // 去掉空元素
   array = array.filter(x => x);
 
   // 使用递归的方式处理数组元素

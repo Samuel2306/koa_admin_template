@@ -11,6 +11,7 @@ const { MySQLQueryInterface } = require('./query-interface');
 class MysqlDialect extends AbstractDialect {
   constructor(sequelize) {
     super();
+    // 将sequelize实例保存到MysqlDialect实例的sequelize属性
     this.sequelize = sequelize;
     // 生成mysql连接管理实例
     this.connectionManager = new ConnectionManager(this, sequelize);

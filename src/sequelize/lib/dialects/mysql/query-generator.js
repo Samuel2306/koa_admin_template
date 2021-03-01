@@ -36,7 +36,7 @@ const typeWithoutDefault = new Set(['BLOB', 'TEXT', 'GEOMETRY', 'JSON']);
 class MySQLQueryGenerator extends AbstractQueryGenerator {
   constructor(options) {
     super(options);
-
+    // 合并父类和子类自定义的操作符对象
     this.OperatorMap = {
       ...this.OperatorMap,
       [Op.regexp]: 'REGEXP',
@@ -44,13 +44,19 @@ class MySQLQueryGenerator extends AbstractQueryGenerator {
     };
   }
 
+  /**
+   * 创建数据库的方法
+   * @param databaseName：数据库名称
+   * @param options：配置对象
+   * @returns {string|*}
+   */
   createDatabaseQuery(databaseName, options) {
     options = {
       charset: null,
       collate: null,
       ...options
     };
-
+    // joinSQLFragments将配置对象组装成最后的sql语句
     return Utils.joinSQLFragments([
       'CREATE DATABASE IF NOT EXISTS',
       this.quoteIdentifier(databaseName),
@@ -60,14 +66,26 @@ class MySQLQueryGenerator extends AbstractQueryGenerator {
     ]);
   }
 
+  /**
+   * 删除数据库
+   * @param databaseName：数据库名称
+   * @returns {string}
+   */
   dropDatabaseQuery(databaseName) {
     return `DROP DATABASE IF EXISTS ${this.quoteIdentifier(databaseName)};`;
   }
 
+  /**
+   * 显示所有表
+   * @returns {string}
+   */
   createSchema() {
     return 'SHOW TABLES';
   }
-
+  /**
+   * 显示所有表
+   * @returns {string}
+   */
   showSchemasQuery() {
     return 'SHOW TABLES';
   }
